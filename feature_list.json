@@ -15,7 +15,7 @@
     {
       "id": "feat-001",
       "name": "M1: 前端骨架 — React + Vite + 入场页 3D 场景",
-      "status": "pending",
+      "status": "completed",
       "description": "搭建 React 18 + TypeScript + Vite 项目，实现入场页全屏 Three.js 场景（旋转地球 + 粒子星光 + 标题 + 开始探索按钮），3D 地球可拖拽旋转和缩放。",
       "dependencies": [],
       "done_criteria": [
