@@ -1,0 +1,95 @@
+#!/bin/sh
+# pre-commit — Three-layer verification gate.
+# Installed via: git config core.hooksPath hooks
+
+# Skip in CI environments
+if [ "$CI" = "true" ]; then
+  echo "=== pre-commit: skipping in CI environment ==="
+  exit 0
+fi
+
+# ---- Layer 1: Lint + TypeScript typecheck ----
+echo ""
+echo "=== pre-commit: lint & typecheck ==="
+echo ""
+
+if [ -f "lint_check.sh" ]; then
+  bash lint_check.sh
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "=== COMMIT REJECTED: lint/typecheck failed ==="
+    echo "To bypass (emergency only): git commit --no-verify"
+    echo ""
+    exit 1
+  fi
+fi
+
+# ---- Layer 2: Doc sync check ----
+echo ""
+echo "=== pre-commit: checking doc sync ==="
+echo ""
+
+if [ -f "done_check.sh" ]; then
+  bash done_check.sh
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "=== COMMIT REJECTED: doc sync failed ==="
+    echo "Fix the issues above, stage changes, and commit again."
+    echo "To bypass (emergency only): git commit --no-verify"
+    echo ""
+    exit 1
+  fi
+fi
+
+# ---- Layer 3: Independent Evaluator ----
+# Skip verify.py for harness-only commits (initial deployment, template updates).
+# Only enforce when actual feature code is being committed.
+if [ -f "verify.py" ]; then
+  STAGED=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null)
+
+  # Harness/template files that skip verify
+  HARNESS_PATTERNS='^(CLAUDE\.md|feature_list\.json|lint_check(\.sh|\.py)|verify\.py|done_check\.sh|progress\.md|session-handoff\.md|DECISIONS\.md|hooks/pre-commit|\.claude/(rules/|settings\.json|hooks/)|smart-travel-.*\.md)'
+
+  HAS_CODE=$(echo "$STAGED" | grep -v -E "$HARNESS_PATTERNS" | grep -v -E '^$' || true)
+
+  if [ -n "$HAS_CODE" ]; then
+    echo ""
+    echo "=== pre-commit: running independent evaluator ==="
+    echo ""
+
+    # Use virtual env Python if available
+    if [ -f ".venv/Scripts/python.exe" ]; then
+      VERIFY_PY=".venv/Scripts/python.exe"
+    elif [ -f ".venv/bin/python" ]; then
+      VERIFY_PY=".venv/bin/python"
+    else
+      VERIFY_PY="python"
+    fi
+
+    if command -v timeout >/dev/null 2>&1; then
+      timeout 30 "$VERIFY_PY" verify.py
+      VERIFY_RESULT=$?
+    elif command -v gtimeout >/dev/null 2>&1; then
+      gtimeout 30 "$VERIFY_PY" verify.py
+      VERIFY_RESULT=$?
+    else
+      "$VERIFY_PY" verify.py
+      VERIFY_RESULT=$?
+    fi
+
+    if [ $VERIFY_RESULT -ne 0 ]; then
+      echo ""
+      echo "=== COMMIT REJECTED: independent evaluator failed ==="
+      echo "Fix the issues above, stage changes, and commit again."
+      echo "To bypass (emergency only): git commit --no-verify"
+      echo ""
+      exit 1
+    fi
+  else
+    echo ""
+    echo "=== pre-commit: skipping evaluator (harness/template-only commit) ==="
+  fi
+fi
+
+echo "=== pre-commit: OK ==="
+exit 0

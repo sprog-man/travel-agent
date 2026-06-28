@@ -1,0 +1,180 @@
+{
+  "version": "2.0",
+  "description": "智能旅行攻略助手 — Feature Backlog",
+  "check_types": {
+    "file_exists": "Path(file).exists()",
+    "file_contains": "pattern in Path(file).read_text()",
+    "file_not_contains": "pattern NOT in Path(file).read_text()",
+    "route_registered": "fastify.post/get/put/delete matching path",
+    "test_passes": "subprocess.run exit code 0",
+    "npm_build": "npm run build exits 0"
+  },
+  "active_feature": null,
+  "all_completed": false,
+  "features": [
+    {
+      "id": "feat-001",
+      "name": "M1: 前端骨架 — React + Vite + 入场页 3D 场景",
+      "status": "pending",
+      "description": "搭建 React 18 + TypeScript + Vite 项目，实现入场页全屏 Three.js 场景（旋转地球 + 粒子星光 + 标题 + 开始探索按钮），3D 地球可拖拽旋转和缩放。",
+      "dependencies": [],
+      "done_criteria": [
+        {"type": "file_exists", "path": "frontend/package.json"},
+        {"type": "file_exists", "path": "frontend/tsconfig.json"},
+        {"type": "file_exists", "path": "frontend/vite.config.ts"},
+        {"type": "file_exists", "path": "frontend/src/main.tsx"},
+        {"type": "file_exists", "path": "frontend/src/App.tsx"},
+        {"type": "file_exists", "path": "frontend/src/pages/Landing.tsx"},
+        {"type": "file_exists", "path": "frontend/src/components/Globe.tsx"},
+        {"type": "file_contains", "path": "frontend/package.json", "pattern": "react-globe.gl"},
+        {"type": "file_contains", "path": "frontend/package.json", "pattern": "@react-three/fiber"},
+        {"type": "file_contains", "path": "frontend/package.json", "pattern": "three"},
+        {"type": "test_passes", "command": "cd frontend && npx tsc --noEmit"}
+      ]
+    },
+    {
+      "id": "feat-002",
+      "name": "M1: 主界面 — 上下分屏 6:4（地球 + 对话面板）",
+      "status": "pending",
+      "description": "实现主界面布局：上方 60% 3D 地球（react-globe.gl），下方 40% 对话面板（ChatPanel），支持拖拽调整分割比例。入场页点击后平滑过渡到主界面。",
+      "dependencies": ["feat-001"],
+      "done_criteria": [
+        {"type": "file_exists", "path": "frontend/src/pages/Main.tsx"},
+        {"type": "file_exists", "path": "frontend/src/components/ChatPanel.tsx"},
+        {"type": "file_contains", "path": "frontend/src/App.tsx", "pattern": "Landing"},
+        {"type": "file_contains", "path": "frontend/src/App.tsx", "pattern": "Main"},
+        {"type": "file_exists", "path": "frontend/src/components/GlobeHeatmap.tsx"},
+        {"type": "file_exists", "path": "frontend/src/components/GlobeDaylight.tsx"},
+        {"type": "file_exists", "path": "frontend/src/hooks/useWebSocket.ts"},
+        {"type": "file_exists", "path": "frontend/src/services/api.ts"}
+      ]
+    },
+    {
+      "id": "feat-003",
+      "name": "M2: 后端骨架 — FastAPI + LangGraph 图搭通",
+      "status": "pending",
+      "description": "搭建 FastAPI 项目，定义 TravelState（LangGraph StateGraph），搭通意图提取节点和工具调度节点的基本图结构。",
+      "dependencies": [],
+      "done_criteria": [
+        {"type": "file_exists", "path": "backend/pyproject.toml"},
+        {"type": "file_exists", "path": "backend/.env.example"},
+        {"type": "file_exists", "path": "backend/src/main.py"},
+        {"type": "file_exists", "path": "backend/src/agent/graph.py"},
+        {"type": "file_exists", "path": "backend/src/agent/state.py"},
+        {"type": "file_exists", "path": "backend/src/schemas/travel.py"},
+        {"type": "file_contains", "path": "backend/src/agent/state.py", "pattern": "TravelState"},
+        {"type": "file_contains", "path": "backend/src/agent/graph.py", "pattern": "StateGraph"},
+        {"type": "file_contains", "path": "backend/src/schemas/travel.py", "pattern": "TravelIntent"},
+        {"type": "file_contains", "path": "backend/pyproject.toml", "pattern": "fastapi"},
+        {"type": "file_contains", "path": "backend/pyproject.toml", "pattern": "langgraph"}
+      ]
+    },
+    {
+      "id": "feat-004",
+      "name": "M2: 高德 MCP 工具集成验证",
+      "status": "pending",
+      "description": "实现高德 MCP 客户端适配层（amap_mcp.py），注册天气/POI/路线 8 个工具到 LangGraph Agent，验证工具调用通过。",
+      "dependencies": ["feat-003"],
+      "done_criteria": [
+        {"type": "file_exists", "path": "backend/src/tools/amap_mcp.py"},
+        {"type": "file_exists", "path": "backend/src/tools/tavily_search.py"},
+        {"type": "file_exists", "path": "backend/src/tools/unsplash_images.py"},
+        {"type": "file_exists", "path": "backend/src/tools/currency.py"},
+        {"type": "file_contains", "path": "backend/src/tools/amap_mcp.py", "pattern": "amap_weather"},
+        {"type": "file_contains", "path": "backend/src/tools/amap_mcp.py", "pattern": "amap_poi_search"},
+        {"type": "file_contains", "path": "backend/src/agent/graph.py", "pattern": "amap_mcp"}
+      ]
+    },
+    {
+      "id": "feat-005",
+      "name": "M3: 前后端联调 — WebSocket 通信打通",
+      "status": "pending",
+      "description": "实现 WebSocket 消息协议（/api/plan），前端 useWebSocket hook 连接后端，点击地球 → 获取攻略 → 对话面板流式展示。",
+      "dependencies": ["feat-002", "feat-003"],
+      "done_criteria": [
+        {"type": "file_contains", "path": "backend/src/main.py", "pattern": "/api/plan"},
+        {"type": "file_contains", "path": "backend/src/main.py", "pattern": "websocket"},
+        {"type": "file_contains", "path": "frontend/src/services/api.ts", "pattern": "WebSocket"},
+        {"type": "file_contains", "path": "frontend/src/hooks/useWebSocket.ts", "pattern": "agent_message"},
+        {"type": "file_contains", "path": "frontend/src/hooks/useWebSocket.ts", "pattern": "tool_call"},
+        {"type": "file_contains", "path": "frontend/src/hooks/useWebSocket.ts", "pattern": "itinerary"},
+        {"type": "test_passes", "command": "cd frontend && npx tsc --noEmit"}
+      ]
+    },
+    {
+      "id": "feat-006",
+      "name": "M4: 完整 Agent 工作流 — 意图→工具→规划→反馈",
+      "status": "pending",
+      "description": "实现完整 LangGraph 节点：intent_node（追问循环）、tool_dispatch_node（并行 MCP 调用）、planning_node（行程编排）、image_enrich_node（Unsplash 配图）、review_node（反馈循环）、output_node。",
+      "dependencies": ["feat-004", "feat-005"],
+      "done_criteria": [
+        {"type": "file_exists", "path": "backend/src/agent/nodes/intent.py"},
+        {"type": "file_exists", "path": "backend/src/agent/nodes/planning.py"},
+        {"type": "file_exists", "path": "backend/src/agent/nodes/image_enrich.py"},
+        {"type": "file_exists", "path": "backend/src/agent/nodes/review.py"},
+        {"type": "file_exists", "path": "backend/src/agent/nodes/output.py"},
+        {"type": "file_contains", "path": "backend/src/agent/nodes/intent.py", "pattern": "TravelIntent"},
+        {"type": "file_contains", "path": "backend/src/agent/nodes/intent.py", "pattern": "missing_fields"},
+        {"type": "file_contains", "path": "backend/src/agent/nodes/planning.py", "pattern": "itinerary"},
+        {"type": "file_contains", "path": "backend/src/agent/nodes/image_enrich.py", "pattern": "search_poi_images"},
+        {"type": "file_contains", "path": "backend/src/agent/nodes/review.py", "pattern": "iteration_count"}
+      ]
+    },
+    {
+      "id": "feat-007",
+      "name": "M4: 测试集验证 — 50 条测试 Case",
+      "status": "pending",
+      "description": "构建 50 条测试 Case（test_cases.jsonl），覆盖正常路径/边界场景/兜底验证/多轮追问/反馈迭代。实现 eval_pipeline.py 批量评估。",
+      "dependencies": ["feat-006"],
+      "done_criteria": [
+        {"type": "file_exists", "path": "tests/test_cases.jsonl"},
+        {"type": "file_exists", "path": "tests/eval_pipeline.py"},
+        {"type": "file_exists", "path": "tests/test_intent.py"},
+        {"type": "file_exists", "path": "tests/test_tools.py"},
+        {"type": "file_contains", "path": "tests/test_cases.jsonl", "pattern": "normal_path"},
+        {"type": "file_contains", "path": "tests/test_cases.jsonl", "pattern": "edge_case"},
+        {"type": "file_contains", "path": "tests/test_cases.jsonl", "pattern": "fallback"},
+        {"type": "file_contains", "path": "tests/test_cases.jsonl", "pattern": "multi_turn"},
+        {"type": "file_contains", "path": "tests/test_cases.jsonl", "pattern": "feedback_loop"}
+      ]
+    },
+    {
+      "id": "feat-008",
+      "name": "M5: LLM 配置页面 + 导出功能 + Docker 化",
+      "status": "pending",
+      "description": "实现 LLM Provider 抽象层（base.py + openai_provider + anthropic_provider + factory），前端 SettingsPanel 配置页。实现 Markdown/PDF 导出。Docker 化部署。",
+      "dependencies": ["feat-006", "feat-007"],
+      "done_criteria": [
+        {"type": "file_exists", "path": "backend/src/llm/base.py"},
+        {"type": "file_exists", "path": "backend/src/llm/openai_provider.py"},
+        {"type": "file_exists", "path": "backend/src/llm/anthropic_provider.py"},
+        {"type": "file_exists", "path": "backend/src/llm/factory.py"},
+        {"type": "file_exists", "path": "frontend/src/components/SettingsPanel.tsx"},
+        {"type": "file_exists", "path": "backend/src/output/markdown.py"},
+        {"type": "file_exists", "path": "backend/src/output/pdf.py"},
+        {"type": "file_exists", "path": "docker-compose.yml"},
+        {"type": "file_exists", "path": "config/llm_config.json"},
+        {"type": "file_exists", "path": "README.md"},
+        {"type": "file_contains", "path": "backend/src/llm/base.py", "pattern": "LLMProvider"},
+        {"type": "file_contains", "path": "backend/src/llm/base.py", "pattern": "chat"},
+        {"type": "file_contains", "path": "backend/src/output/markdown.py", "pattern": "itinerary"},
+        {"type": "file_contains", "path": "backend/src/output/pdf.py", "pattern": "weasyprint"}
+      ]
+    },
+    {
+      "id": "feat-009",
+      "name": "M5: 可观测性 — 全链路日志 + 成本/延迟统计",
+      "status": "pending",
+      "description": "实现 Structlog + JSONL 结构化日志，按请求记录 Token 消耗、耗时分布、失败原因。日志目录 logs/requests.jsonl + logs/mcp/ + logs/states/。",
+      "dependencies": ["feat-008"],
+      "done_criteria": [
+        {"type": "file_exists", "path": "backend/src/observability/logger.py"},
+        {"type": "file_exists", "path": "backend/src/observability/metrics.py"},
+        {"type": "file_contains", "path": "backend/src/observability/logger.py", "pattern": "structlog"},
+        {"type": "file_contains", "path": "backend/src/observability/metrics.py", "pattern": "latency_ms"},
+        {"type": "file_contains", "path": "backend/src/observability/metrics.py", "pattern": "cost_usd"},
+        {"type": "file_contains", "path": "backend/src/observability/metrics.py", "pattern": "llm_tokens"}
+      ]
+    }
+  ]
+}
