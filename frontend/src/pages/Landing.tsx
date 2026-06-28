@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Globe from '../components/Globe';
 import CustomCursor from '../components/CustomCursor';
 
@@ -22,7 +22,16 @@ const FEATURES = [
     title: '一键导出',
     desc: '行程确认后即时生成 Markdown / PDF 行程单，随时查阅',
   },
-];
+] as const;
+
+type StaggerDelay = 'stagger-1' | 'stagger-2' | 'stagger-3';
+
+interface FeatureCardProps {
+  icon: string;
+  title: string;
+  desc: string;
+  delay: StaggerDelay;
+}
 
 const useScrollReveal = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -47,12 +56,7 @@ const useScrollReveal = () => {
   return ref;
 };
 
-const FeatureCard: React.FC<{
-  icon: string;
-  title: string;
-  desc: string;
-  delay: string;
-}> = ({ icon, title, desc, delay }) => (
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, desc, delay }) => (
   <div
     className={`scroll-reveal ${delay} group relative p-8 rounded-2xl border border-white/10
                  bg-white/[0.03] backdrop-blur-sm
@@ -68,22 +72,32 @@ const FeatureCard: React.FC<{
 );
 
 const Landing: React.FC<LandingProps> = ({ onExplore }) => {
-  const [scrollY, setScrollY] = useState(0);
+  const scrollRef = useRef(0);
+  const heroContentRef = useRef<HTMLDivElement>(null);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
   const heroRef = useScrollReveal();
   const featuresRef = useScrollReveal();
   const ctaRef = useScrollReveal();
 
-  const handleScroll = useCallback(() => {
-    setScrollY(window.scrollY);
-  }, []);
-
+  // Scroll-driven parallax via useRef + direct DOM (no React re-render)
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+    const onScroll = () => {
+      const y = window.scrollY;
+      scrollRef.current = y;
 
-  const heroOpacity = Math.max(0, 1 - scrollY / 600);
-  const heroTranslate = scrollY * 0.3;
+      if (heroContentRef.current) {
+        const opacity = Math.max(0, 1 - y / 600);
+        heroContentRef.current.style.opacity = String(opacity);
+        heroContentRef.current.style.transform = `translateY(-${y * 0.3}px)`;
+      }
+      if (scrollHintRef.current) {
+        scrollHintRef.current.style.opacity = String(Math.max(0, 1 - y / 200));
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <div className="relative w-full h-full bg-black overflow-y-auto overflow-x-hidden">
@@ -101,12 +115,11 @@ const Landing: React.FC<LandingProps> = ({ onExplore }) => {
       {/* ── Section 1: Hero ── */}
       <section className="relative z-10 h-screen flex flex-col items-center justify-center px-4">
         <div
-          ref={heroRef}
-          className="scroll-reveal text-center max-w-4xl"
-          style={{
-            opacity: heroOpacity,
-            transform: `translateY(-${heroTranslate}px)`,
+          ref={(el) => {
+            (heroRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+            (heroContentRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
           }}
+          className="scroll-reveal text-center max-w-4xl"
         >
           {/* English subtitle */}
           <p className="text-xs sm:text-sm tracking-[0.35em] text-cyan-400/70 mb-6 uppercase font-medium">
@@ -149,7 +162,7 @@ const Landing: React.FC<LandingProps> = ({ onExplore }) => {
         </div>
 
         {/* Scroll hint */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
+        <div ref={scrollHintRef} className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50">
           <span className="text-xs text-gray-500 tracking-widest uppercase">Scroll</span>
           <svg className="w-5 h-5 text-gray-500 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -172,7 +185,7 @@ const Landing: React.FC<LandingProps> = ({ onExplore }) => {
               <FeatureCard
                 key={f.title}
                 {...f}
-                delay={`stagger-${i + 1}`}
+                delay={`stagger-${i + 1}` as StaggerDelay}
               />
             ))}
           </div>

@@ -1,6 +1,10 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 
 const LERP = 0.15;
+const OUTER_SIZE = 24; // matches Tailwind w-6
+const INNER_SIZE = 6;  // matches Tailwind w-1.5
+const OUTER_OFFSET = OUTER_SIZE / 2;
+const INNER_OFFSET = INNER_SIZE / 2;
 
 const CustomCursor: React.FC = () => {
   const outerRef = useRef<HTMLDivElement>(null);
@@ -8,22 +12,33 @@ const CustomCursor: React.FC = () => {
   const mouse = useRef({ x: 0, y: 0 });
   const outerPos = useRef({ x: 0, y: 0 });
   const rafId = useRef<number>(0);
+  const prefersReducedMotion = useRef(false);
 
   const animate = useCallback(() => {
+    if (prefersReducedMotion.current) return;
+
     outerPos.current.x += (mouse.current.x - outerPos.current.x) * LERP;
     outerPos.current.y += (mouse.current.y - outerPos.current.y) * LERP;
 
     if (outerRef.current) {
-      outerRef.current.style.transform = `translate(${outerPos.current.x - 12}px, ${outerPos.current.y - 12}px)`;
+      outerRef.current.style.transform = `translate(${outerPos.current.x - OUTER_OFFSET}px, ${outerPos.current.y - OUTER_OFFSET}px)`;
     }
     if (innerRef.current) {
-      innerRef.current.style.transform = `translate(${mouse.current.x - 3}px, ${mouse.current.y - 3}px)`;
+      innerRef.current.style.transform = `translate(${mouse.current.x - INNER_OFFSET}px, ${mouse.current.y - INNER_OFFSET}px)`;
     }
 
     rafId.current = requestAnimationFrame(animate);
   }, []);
 
   useEffect(() => {
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    prefersReducedMotion.current = mql.matches;
+
+    const onMotionChange = (e: MediaQueryListEvent) => {
+      prefersReducedMotion.current = e.matches;
+    };
+    mql.addEventListener('change', onMotionChange);
+
     const onMove = (e: MouseEvent) => {
       mouse.current.x = e.clientX;
       mouse.current.y = e.clientY;
@@ -42,21 +57,27 @@ const CustomCursor: React.FC = () => {
     window.addEventListener('mousemove', onMove);
     document.addEventListener('mouseenter', onEnter);
     document.addEventListener('mouseleave', onLeave);
-    rafId.current = requestAnimationFrame(animate);
+
+    if (!prefersReducedMotion.current) {
+      rafId.current = requestAnimationFrame(animate);
+    }
 
     return () => {
       window.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseenter', onEnter);
       document.removeEventListener('mouseleave', onLeave);
+      mql.removeEventListener('change', onMotionChange);
       cancelAnimationFrame(rafId.current);
     };
   }, [animate]);
+
+  if (prefersReducedMotion.current) return null;
 
   return (
     <>
       <div
         ref={outerRef}
-        className="fixed top-0 left-0 w-6 h-6 rounded-full border border-white/40 pointer-events-none z-[9999] opacity-0 transition-[width,height,border-color] duration-200"
+        className="fixed top-0 left-0 w-6 h-6 rounded-full border border-white/40 pointer-events-none z-[9999] opacity-0"
         style={{ mixBlendMode: 'difference' }}
       />
       <div

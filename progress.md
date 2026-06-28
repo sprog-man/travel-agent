@@ -84,6 +84,19 @@
 - SPEC.md 要求"类似 activetheory.net 风格"的沉浸式场景
 - feat-001 初始实现仅为简单居中布局，未达到 SPEC 要求
 
+## Session: 2026-06-28 — feat-001 Code Review 修复
+
+### Completed
+- [x] 创建 `src/types/react-globe.gl.d.ts` 类型声明，消除 `any` — [react-globe.gl.d.ts](frontend/src/types/react-globe.gl.d.ts)
+- [x] Globe.tsx 添加 ResizeObserver 响应窗口缩放 — [Globe.tsx:47-56](frontend/src/components/Globe.tsx#L47-L56)
+- [x] Globe.tsx 卸载时清理 Three.js 资源（dispose geometry/material/renderer） — [Globe.tsx:62-80](frontend/src/components/Globe.tsx#L62-L80)
+- [x] Landing.tsx scrollY 改为 useRef + 直接 DOM 操作，消除每帧 re-render — [Landing.tsx:71-84](frontend/src/pages/Landing.tsx#L71-L84)
+- [x] App.tsx 实现 CSS opacity 500ms 过渡，不销毁 DOM — [App.tsx:14-35](frontend/src/App.tsx#L14-L35)
+- [x] CustomCursor 添加 prefers-reduced-motion 检测 — [CustomCursor.tsx:47-50](frontend/src/components/CustomCursor.tsx#L47-L50)
+- [x] FeatureCardProps 提取为独立 interface + StaggerDelay 类型 — [Landing.tsx:34-42](frontend/src/pages/Landing.tsx#L34-L42)
+- [x] index.css 添加 overflow:hidden 注释说明滚动契约 — [index.css:16-18](frontend/src/index.css#L16-L18)
+- [x] tsc --noEmit 零错误, vite build 通过
+
 ### Completed
 - [x] pre-commit hook Layer 3 标签从 "Independent Evaluator" 改为 "Static verification (verify.py)" — [hooks/pre-commit:44-46](hooks/pre-commit#L44-L46)
 - [x] pre-commit hook echo 文本从 "running evaluator" 改为 "running static checks (verify.py)" — [hooks/pre-commit:80](hooks/pre-commit#L80)

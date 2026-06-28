@@ -12,6 +12,8 @@
   box-sizing: border-box;
 }
 
+/* Root overflow: hidden — required for fixed 3D globe background.
+   Pages must implement their own scroll containers (e.g. overflow-y-auto on a wrapper div). */
 html,
 body,
 #root {

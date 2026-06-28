@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import * as THREE from 'three';
 
 interface ParticleData {
   lat: number;
@@ -36,13 +37,32 @@ function generateRings(): RingData[] {
   ];
 }
 
-const Globe: React.FC = () => {
+function disposeThreeObject(obj: THREE.Object3D) {
+  if (obj instanceof THREE.Mesh) {
+    obj.geometry?.dispose();
+    const mat = obj.material;
+    if (Array.isArray(mat)) {
+      mat.forEach((m) => m.dispose());
+    } else if (mat) {
+      mat.dispose();
+    }
+  }
+  obj.children.forEach(disposeThreeObject);
+}
+
+interface GlobeProps {
+  className?: string;
+}
+
+const Globe: React.FC<GlobeProps> = ({ className = '' }) => {
   const globeRef = useRef<HTMLDivElement>(null);
-  const [GlobeGl, setGlobeGl] = useState<any>(null);
-  const [ready, setReady] = useState(false);
+  const globeInstanceRef = useRef<Record<string, unknown> | null>(null);
+  const [GlobeGl, setGlobeGl] = useState<typeof import('react-globe.gl')['default'] | null>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
   const [particles] = useState<ParticleData[]>(() => generateParticles(PARTICLE_COUNT));
   const [rings] = useState<RingData[]>(() => generateRings());
 
+  // Dynamic import globe.gl
   useEffect(() => {
     let cancelled = false;
     const loadGlobe = async () => {
@@ -59,37 +79,72 @@ const Globe: React.FC = () => {
     return () => { cancelled = true; };
   }, []);
 
+  // ResizeObserver for responsive dimensions
   useEffect(() => {
-    if (GlobeGl && globeRef.current) {
-      setReady(true);
+    const el = globeRef.current;
+    if (!el) return;
+
+    const ro = new ResizeObserver((entries) => {
+      const { width, height } = entries[0].contentRect;
+      setSize({ width, height });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Cleanup Three.js resources on unmount
+  const cleanupGlobe = useCallback(() => {
+    if (globeInstanceRef.current) {
+      try {
+        const globe = globeInstanceRef.current as {
+          scene?: () => THREE.Scene;
+          renderer?: () => THREE.WebGLRenderer;
+        };
+        if (typeof globe.scene === 'function') {
+          const scene = globe.scene();
+          scene.children.forEach(disposeThreeObject);
+        }
+        if (typeof globe.renderer === 'function') {
+          globe.renderer().dispose();
+        }
+      } catch {
+        // Globe may already be disposed
+      }
+      globeInstanceRef.current = null;
     }
-  }, [GlobeGl]);
+  }, []);
+
+  useEffect(() => {
+    return cleanupGlobe;
+  }, [cleanupGlobe]);
 
   return (
-    <div ref={globeRef} className="w-full h-full bg-black">
-      {ready && GlobeGl && globeRef.current && (
+    <div ref={globeRef} className={`w-full h-full bg-black ${className}`}>
+      {GlobeGl && size.width > 0 && size.height > 0 && (
         <GlobeGl
-          ref={(globe: any) => {
-            if (globe) {
-              globe.controls().autoRotate = true;
-              globe.controls().autoRotateSpeed = 0.3;
-              globe.controls().enableZoom = false;
+          ref={(globe: unknown) => {
+            if (globe && typeof globe === 'object') {
+              globeInstanceRef.current = globe as Record<string, unknown>;
+              const ctrl = (globe as { controls?: () => GlobeControls }).controls?.();
+              if (ctrl) {
+                ctrl.autoRotate = true;
+                ctrl.autoRotateSpeed = 0.3;
+                ctrl.enableZoom = false;
+              }
             }
           }}
-          width={globeRef.current.clientWidth}
-          height={globeRef.current.clientHeight}
+          width={size.width}
+          height={size.height}
           backgroundColor="rgba(0, 0, 0, 0)"
           backgroundImageUrl=""
           showAtmosphere
           atmosphereColor="#22d3ee"
           atmosphereAltitude={0.18}
-          showPoints={true}
-          showGlow={true}
-          glowColor="#22d3ee"
+          showPoints
           showLabels={false}
           enablePointerInteraction={false}
-          globeImageUrl="//unpkg.com/three-globe/example/img/earth-night.jpg"
-          bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+          globeImageUrl="https://unpkg.com/three-globe/example/img/earth-night.jpg"
+          bumpImageUrl="https://unpkg.com/three-globe/example/img/earth-topology.png"
           pointsData={particles}
           pointColor={() => '#22d3ee'}
           pointAltitude={0.06}
@@ -104,5 +159,11 @@ const Globe: React.FC = () => {
     </div>
   );
 };
+
+interface GlobeControls {
+  autoRotate: boolean;
+  autoRotateSpeed: number;
+  enableZoom: boolean;
+}
 
 export default Globe;
