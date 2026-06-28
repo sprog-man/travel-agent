@@ -3,8 +3,8 @@
 ## Current State
 
 **Last Updated:** 2026-06-28
-**Active Feature:** feat-001
-**Status:** ✅ COMPLETED — 11/11 criteria passed
+**Active Feature:** feat-002
+**Status:** 🔄 IN PROGRESS — feat-002 implementation complete, awaiting Evaluator verification
 
 ---
 
@@ -38,12 +38,37 @@
 
 ---
 
+---
+
+## Session: 2026-06-28 — feat-002 主界面上下分屏实现
+
+### Completed
+- [x] feat-002: M1 主界面 — 上下分屏 6:4（地球 + 对话面板）
+  - `frontend/src/pages/Main.tsx` — 上下分屏布局（Globe 60% + ChatPanel 40%），draggable separator，min/max 20%-85% — [Main.tsx](frontend/src/pages/Main.tsx)
+  - `frontend/src/components/ChatPanel.tsx` — 对话面板：消息列表 + 输入框 + 连接状态指示器 — [ChatPanel.tsx](frontend/src/components/ChatPanel.tsx)
+  - `frontend/src/components/GlobeHeatmap.tsx` — 热度热力图图层（points 数组 + heatColor 渐变） — [GlobeHeatmap.tsx](frontend/src/components/GlobeHeatmap.tsx)
+  - `frontend/src/components/GlobeDaylight.tsx` — 时区明暗光照（calculateSunPosition） — [GlobeDaylight.tsx](frontend/src/components/GlobeDaylight.tsx)
+  - `frontend/src/hooks/useWebSocket.ts` — WebSocket 连接管理 + 指数退避重连 — [useWebSocket.ts](frontend/src/hooks/useWebSocket.ts)
+  - `frontend/src/services/api.ts` — TypeScript 类型定义 + fetchGuide/createPlanWebSocket/fetchLLMConfig — [api.ts](frontend/src/services/api.ts)
+  - `frontend/src/vite-env.d.ts` — ImportMetaEnv 类型声明 — [vite-env.d.ts](frontend/src/vite-env.d.ts)
+  - `frontend/src/App.tsx` — 新增 Main 页面导入 + showMain 状态管理 — [App.tsx](frontend/src/App.tsx)
+- [x] `npx tsc --noEmit` 零错误
+- [x] `python verify.py --feature feat-002` — 8/8 criteria PASS
+
+### Evidence
+- TypeScript 编译：零错误（tsc --noEmit）
+- verify.py 静态检查：8/8 criteria PASS
+- 代码审查（Code Reviewer）：Main.tsx separator 支持鼠标 + 触摸 + 键盘，drag overlay 防止 iframe focus stealing
+
+---
+
 ## Next Steps
 
-1. `python verify.py --unlock`
-2. git add + commit + push
-3. Start feat-002: 主界面上下分屏布局
-4. 后续优化：Globe.tsx 粒子闪烁效果、窗口 resize 监听
+1. Evaluator agent 独立验收（Playwright MCP）
+2. feat-002 标记 completed
+3. `python verify.py --unlock`
+4. git push
+5. Start feat-003: 后端骨架 FastAPI + LangGraph
 
 ---
 

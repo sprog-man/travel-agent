@@ -1,20 +1,23 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import Landing from './pages/Landing';
+import Main from './pages/Main';
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [fading, setFading] = useState(false);
+  const [showMain, setShowMain] = useState(false);
   const landingRef = useRef<HTMLDivElement>(null);
 
   const handleExplore = useCallback(() => {
     setFading(true);
   }, []);
 
-  // After fade-out transition completes, unmount Landing
+  // After fade-out transition completes, unmount Landing and mount Main
   useEffect(() => {
     if (!fading) return;
     const timer = setTimeout(() => {
       setShowLanding(false);
+      setShowMain(true);
     }, 600); // match transition duration
     return () => clearTimeout(timer);
   }, [fading]);
@@ -30,9 +33,12 @@ function App() {
           <Landing onExplore={handleExplore} />
         </div>
       )}
-      {!showLanding && (
-        <div className="w-full h-full flex items-center justify-center text-white">
-          <p className="text-lg opacity-60">主界面将在后续迭代中实现。</p>
+      {showMain && (
+        <div
+          className="w-full h-full"
+          style={{ animation: 'fadeIn 0.5s ease-in-out' }}
+        >
+          <Main />
         </div>
       )}
     </div>
