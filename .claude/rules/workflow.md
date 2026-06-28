@@ -8,17 +8,19 @@
 2. 读 feature_list.json
 3. 读 session-handoff.md
 4. 读 DECISIONS.md
-5. python verify.py
+5. python verify.py --check-lock && python verify.py
 ```
 
 ### 开发
 ```
-1. 选一个 pending feature（WIP=1）
-2. 读 CLAUDE.md 规则索引 → 按需读对应 rules 文件
-3. 实现 feature
-4. python verify.py --feature <feat-id> 自检
-5. 更新 progress.md（记录变更 + 证据）
-6. git add + commit（hook 自动跑 lint → doc sync → verify）
+1. python verify.py --lock feat-XXX    ← 取锁
+2. 选一个 pending feature（WIP=1）
+3. 读 CLAUDE.md 规则索引 → 按需读对应 rules 文件
+4. 实现 feature
+5. python verify.py --feature <feat-id> 自检
+6. 更新 progress.md（记录变更 + 证据）
+7. git add + commit（hook 自动跑 lint → doc sync → verify）
+8. python verify.py --unlock           ← 释锁
 ```
 
 ### 退出
@@ -38,6 +40,13 @@
 | 前后端同时开发 | 并行型 | 同时 spawn Frontend Developer + Backend Architect |
 | feature 完成验收 | 只读型/Evaluator | spawn Evaluator → verify.py → PASSING 才标记 completed |
 
+## 锁机制
+
+- `python verify.py --lock feat-XXX` — 取锁，防止多人同时改同一 feature
+- `python verify.py --check-lock` — 检查锁状态（超时 15 分钟视为 stale）
+- `python verify.py --unlock` — 释锁
+- 锁文件：`.verify.lock`
+
 ## 验收门
 
 Generator 声称完成后，必须 spawn Evaluator 独立验收：
@@ -52,7 +61,7 @@ Generator 声称完成后，必须 spawn Evaluator 独立验收：
 git commit → pre-commit hook
   ├─ Layer 1: bash lint_check.sh   (Python 语法 + TS 类型检查)
   ├─ Layer 2: bash done_check.sh   (文档同步检查)
-  └─ Layer 3: python verify.py     (独立评估器)
+  └─ Layer 3: python verify.py     (独立评估器，harness 提交跳过)
 ```
 
 ## Claude Code Hooks

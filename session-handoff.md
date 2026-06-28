@@ -2,52 +2,59 @@
 
 ## Current Objective
 
-- Goal: Deploy harness for 智能旅行攻略助手 project
-- Current status: Harness deployed, ready for feature development
-- Branch: (none yet — create on first feature)
+- Goal: Redeploy harness with improvements (lock mechanism, self-test, Chinese commits, FastAPI route detection)
+- Current status: Harness v2.0 deployed with 9 improvements
+- Branch: master (pushed to origin)
 
 ## Completed This Session
 
-- [x] Full harness deployment per SPEC.md
-- [x] 9 features mapped from milestones M1-M5
-- [x] All template files copied and adapted
+- [x] Redeployed verify.py with --lock/--unlock/--self-test/--check-lock
+- [x] Fixed verify.py to use virtual env Python (.venv) instead of system python
+- [x] Fixed verify.py route_registered handler for FastAPI (was Fastify)
+- [x] Fixed verify.py subprocess encoding for Windows (utf-8 + errors='replace')
+- [x] Updated CLAUDE.md with lock mechanism and Chinese commit requirement
+- [x] Updated quality.md — commit examples in Chinese
+- [x] Updated workflow.md — added lock mechanism section
+- [x] Updated hooks/pre-commit — uses .venv Python for verify.py
+- [x] Updated session-handoff.md — removed stale blockers
+- [x] Committed and pushed to origin/master
 
 ## Verification Evidence
 
 | Check | Result | Notes |
 |-------|--------|-------|
-| `python verify.py` | N/A | No code yet, features pending |
-| `bash done_check.sh` | N/A | No code yet, features pending |
+| `python verify.py --self-test` | Pending | Will run when code exists |
+| `bash done_check.sh` | Pending | Will run when code exists |
+| `git log --oneline -1` | PASS | 99d4436 harness deployed |
 
 ## Files Changed
 
-- Created: CLAUDE.md, feature_list.json, lint_check.sh, progress.md
-- Copied: verify.py, done_check.sh, hooks/pre-commit
-- Copied: session-handoff.md, DECISIONS.md
-- Copied: .claude/settings.json, .claude/hooks/*
-- Generated: .claude/rules/workflow.md, quality.md, frontend.md, backend.md
+- Modified: verify.py (major rewrite: locks, self-test, FastAPI routes, encoding fix)
+- Modified: CLAUDE.md (added lock mechanism, Chinese commit requirement)
+- Modified: .claude/rules/quality.md (Chinese commit examples)
+- Modified: .claude/rules/workflow.md (lock mechanism section)
+- Modified: hooks/pre-commit (virtual env Python for verify.py)
+- Modified: session-handoff.md (updated status)
 
 ## Decisions Made
 
-- 9 features mapped directly from spec milestones (M1-M5)
-- feat-001 and feat-003 are independent (can parallelize frontend/backend)
-- feat-002 depends on feat-001, feat-004 depends on feat-003
-- feat-005 depends on feat-002 + feat-003 (integration point)
-- Docker and README deferred to feat-008 (M5 productization)
+- Lock mechanism: 15-minute timeout, .verify.lock file, --force for stale takeover
+- Commit messages: Chinese only, Conventional Commits format
+- Route detection: FastAPI patterns (app.get/post/put/delete, router.get/post)
+- Windows encoding: subprocess uses utf-8 encoding + errors='replace' to prevent GBK crashes
 
 ## Blockers / Risks
 
-- No git repo initialized yet — need `git init` before pre-commit hooks work
-- Windows platform — bash scripts may need WSL or Git Bash
-- No API keys configured yet (AMAP, TAVILY, UNSPLASH, LLM)
+- None — harness deployed and pushed successfully
+- Windows Git Bash required for `bash lint_check.sh` / `bash done_check.sh`
 
 ## Next Session Startup
 
 1. Read `CLAUDE.md`
 2. Read `progress.md` + `feature_list.json`
 3. Read this handoff
-4. Run `python verify.py` before editing
+4. Run `python verify.py --check-lock && python verify.py` before editing
 
 ## Recommended Next Step
 
-Initialize git repo, then start feat-001 (frontend skeleton) or feat-003 (backend skeleton) in parallel using the parallel execution mode.
+Start feat-001 (M1 前端骨架): `python verify.py --lock feat-001` then scaffold React + Vite project.

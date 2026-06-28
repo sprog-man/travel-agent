@@ -21,6 +21,11 @@ uvicorn src.main:app --reload --port 8000          # 开发
 
 # 验证
 python verify.py                                   # 独立评估器
+python verify.py --feature feat-XXX                # 验证特定功能
+python verify.py --self-test                       # 自测所有 handler
+python verify.py --lock feat-XXX                   # 取锁（WIP=1）
+python verify.py --unlock                          # 释锁
+python verify.py --check-lock                      # 检查锁状态
 bash lint_check.sh                                 # 语法+类型检查
 bash done_check.sh                                 # 文档同步检查
 
@@ -50,8 +55,9 @@ smart-travel-assistant/
 
 ## 核心约束
 
-1. **一次一个 feature。** WIP=1，从 feature_list.json 选未完成项。
+1. **一次一个 feature。** WIP=1，先 `--lock feat-XXX` 再开发，完成后 `--unlock`。
 2. **验证后声称完成。** `python verify.py` 以 Evaluator verdict 为准。
 3. **先读规则再改代码。** 改前端先读 `frontend.md`，改后端先读 `backend.md`。
 4. **CLAUDE.md ≤ 80 行。** 详细规则放 `.claude/rules/`。
 5. **不漂移。** 不修改当前 feature 无关的文件。
+6. **提交信息使用中文。** 方便追溯和阅读。

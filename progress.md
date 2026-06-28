@@ -4,30 +4,27 @@
 
 **Last Updated:** 2026-06-28
 **Active Feature:** feat-001 — M1: 前端骨架
-**Status:** Pending — Harness deployed, ready for development
+**Status:** Pending — Harness v2.0 deployed, ready for development
 
 ---
 
-## Session: 2026-06-28 — Harness Deployment
+## Session: 2026-06-28 — Harness Redeployment v2.0
 
 ### Completed
-- [x] Deployed CLAUDE.md (project constitution)
-- [x] Generated feature_list.json (9 features from spec milestones M1-M5)
-- [x] Generated lint_check.sh (Python syntax + TypeScript typecheck)
-- [x] Copied verify.py (independent evaluator)
-- [x] Copied done_check.sh (doc sync verifier)
-- [x] Copied progress.md (this file)
-- [x] Copied session-handoff.md (cross-session handoff)
-- [x] Copied DECISIONS.md (architecture decision log)
-- [x] Copied hooks/pre-commit (three-layer gate)
-- [x] Copied .claude/settings.json (hook configuration)
-- [x] Copied .claude/hooks/guard-bash.sh (dangerous command blocker)
-- [x] Copied .claude/hooks/check-secrets.sh (secret detection)
-- [x] Copied .claude/hooks/typecheck.sh (post-edit typecheck)
-- [x] Generated .claude/rules/workflow.md
-- [x] Generated .claude/rules/quality.md
-- [x] Generated .claude/rules/frontend.md
-- [x] Generated .claude/rules/backend.md
+- [x] Redeployed verify.py with lock mechanism (--lock/--unlock/--check-lock)
+- [x] Added verify.py --self-test for handler self-validation
+- [x] Fixed verify.py route_registered: FastAPI patterns (app.get/post/put/delete)
+- [x] Fixed verify.py subprocess encoding: utf-8 + errors='replace' (Windows GBK crash fix)
+- [x] Fixed verify.py to use .venv Python for test_passes commands
+- [x] Updated CLAUDE.md with lock mechanism and Chinese commit requirement
+- [x] Updated quality.md — commit examples in Chinese
+- [x] Updated workflow.md — added lock mechanism section
+- [x] Updated hooks/pre-commit — uses .venv Python for verify.py
+- [x] Updated session-handoff.md — removed stale blockers
+- [x] Committed and pushed to origin/master
+
+### In Progress
+- [ ] feat-001: M1 前端骨架 — React + Vite + 入场页 3D 场景
 
 ### Test Count
 - Before: 0 tests
@@ -37,6 +34,8 @@
 
 ## Next Steps
 
-1. Start feat-001: M1 前端骨架 — React + Vite + 入场页 3D 场景
-2. Run `python verify.py` after each feature completion
-3. Update progress.md with evidence references before committing
+1. `python verify.py --lock feat-001`
+2. Scaffold frontend: React 18 + TypeScript + Vite + react-globe.gl
+3. Implement Landing.tsx (3D globe + particles + title + CTA button)
+4. Run `python verify.py --feature feat-001` 自检
+5. Update progress.md, commit, unlock

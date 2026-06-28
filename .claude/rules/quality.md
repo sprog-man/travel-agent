@@ -19,21 +19,20 @@
 
 ## Commit 格式
 
+**提交信息必须使用中文。**
+
 遵循 Conventional Commits：
 ```
-<type>(<scope>): <subject>
-
-<body> (optional)
-<footer> (optional)
+<type>(<scope>): <中文描述>
 ```
 
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 
 Examples:
 ```
-feat(frontend): add globe heatmap layer with hexbin colors
-fix(backend): handle amap weather timeout gracefully
-docs: update DECISIONS.md with LLM provider choice
+feat(frontend): 添加地球热力图图层
+fix(backend): 修复高德天气接口超时处理
+docs: 更新 DECISIONS.md 记录 LLM 提供商选择
 ```
 
 ## 文档同步
