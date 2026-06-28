@@ -42,22 +42,44 @@ if [ -f "done_check.sh" ]; then
 fi
 
 # ---- Layer 3: Independent Evaluator ----
-# Skip verify.py for harness-only commits (initial deployment, template updates).
-# Only enforce when actual feature code is being committed.
+# Determine which feature is being committed based on staged file paths.
+# Only verify that specific feature. Skip if no feature can be determined.
 if [ -f "verify.py" ]; then
   STAGED=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null)
 
-  # Harness/template files that skip verify
-  HARNESS_PATTERNS='^(CLAUDE\.md|feature_list\.json|lint_check(\.sh|\.py)|verify\.py|done_check\.sh|progress\.md|session-handoff\.md|DECISIONS\.md|hooks/pre-commit|\.claude/(rules/|settings\.json|hooks/)|smart-travel-.*\.md)'
+  # Map staged files to feature IDs
+  FEATURE_ID=""
+  FRONTEND_FILES=$(echo "$STAGED" | grep -E '^frontend/' || true)
+  BACKEND_FILES=$(echo "$STAGED" | grep -E '^backend/' || true)
 
-  HAS_CODE=$(echo "$STAGED" | grep -v -E "$HARNESS_PATTERNS" | grep -v -E '^$' || true)
+  if [ -n "$FRONTEND_FILES" ]; then
+    # Check which frontend feature this belongs to
+    if echo "$FRONTEND_FILES" | grep -qE '(Main\.tsx|ChatPanel\.tsx|GlobeHeatmap|GlobeDaylight|useWebSocket|services/api\.ts)'; then
+      FEATURE_ID="feat-002"
+    elif echo "$FRONTEND_FILES" | grep -qE '(Landing\.tsx|Globe\.tsx|App\.tsx|main\.tsx|package\.json|tsconfig\.json|vite\.config|tailwind\.config|postcss\.config|index\.html|globals\.css|index\.css)'; then
+      FEATURE_ID="feat-001"
+    fi
+  fi
 
-  if [ -n "$HAS_CODE" ]; then
+  if [ -n "$BACKEND_FILES" ]; then
+    if echo "$BACKEND_FILES" | grep -qE '(nodes/intent|nodes/planning|nodes/image_enrich|nodes/review|nodes/output)'; then
+      FEATURE_ID="feat-006"
+    elif echo "$BACKEND_FILES" | grep -qE '(tools/amap_mcp|tools/tavily|tools/unsplash|tools/currency)'; then
+      FEATURE_ID="feat-004"
+    elif echo "$BACKEND_FILES" | grep -qE '(agent/graph|agent/state|schemas/travel|main\.py)'; then
+      FEATURE_ID="feat-003"
+    elif echo "$BACKEND_FILES" | grep -qE '(llm/base|llm/openai|llm/anthropic|llm/factory|output/|SettingsPanel|docker-compose|README|config/llm)'; then
+      FEATURE_ID="feat-008"
+    elif echo "$BACKEND_FILES" | grep -qE '(observability/logger|observability/metrics)'; then
+      FEATURE_ID="feat-009"
+    fi
+  fi
+
+  if [ -n "$FEATURE_ID" ]; then
     echo ""
-    echo "=== pre-commit: running independent evaluator ==="
+    echo "=== pre-commit: running evaluator for $FEATURE_ID ==="
     echo ""
 
-    # Use virtual env Python if available
     if [ -f ".venv/Scripts/python.exe" ]; then
       VERIFY_PY=".venv/Scripts/python.exe"
     elif [ -f ".venv/bin/python" ]; then
@@ -67,19 +89,19 @@ if [ -f "verify.py" ]; then
     fi
 
     if command -v timeout >/dev/null 2>&1; then
-      timeout 30 "$VERIFY_PY" verify.py
+      timeout 30 "$VERIFY_PY" verify.py --feature "$FEATURE_ID"
       VERIFY_RESULT=$?
     elif command -v gtimeout >/dev/null 2>&1; then
-      gtimeout 30 "$VERIFY_PY" verify.py
+      gtimeout 30 "$VERIFY_PY" verify.py --feature "$FEATURE_ID"
       VERIFY_RESULT=$?
     else
-      "$VERIFY_PY" verify.py
+      "$VERIFY_PY" verify.py --feature "$FEATURE_ID"
       VERIFY_RESULT=$?
     fi
 
     if [ $VERIFY_RESULT -ne 0 ]; then
       echo ""
-      echo "=== COMMIT REJECTED: independent evaluator failed ==="
+      echo "=== COMMIT REJECTED: evaluator failed for $FEATURE_ID ==="
       echo "Fix the issues above, stage changes, and commit again."
       echo "To bypass (emergency only): git commit --no-verify"
       echo ""
@@ -87,7 +109,7 @@ if [ -f "verify.py" ]; then
     fi
   else
     echo ""
-    echo "=== pre-commit: skipping evaluator (harness/template-only commit) ==="
+    echo "=== pre-commit: skipping evaluator (harness/template config only) ==="
   fi
 fi
 

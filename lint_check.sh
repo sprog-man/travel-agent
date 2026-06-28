@@ -27,14 +27,14 @@ fi
 if command -v npx &>/dev/null; then
   if [ -f "frontend/tsconfig.json" ]; then
     echo "  Running frontend typecheck..."
-    if ! npx tsc --noEmit -p frontend/tsconfig.json; then
+    if ! (cd frontend && npx tsc --noEmit); then
       echo "  [TSC] frontend typecheck failed"
       ERRORS=$((ERRORS + 1))
     fi
   fi
   if [ -f "backend/tsconfig.json" ]; then
     echo "  Running backend typecheck..."
-    if ! npx tsc --noEmit -p backend/tsconfig.json; then
+    if ! (cd backend && npx tsc --noEmit); then
       echo "  [TSC] backend typecheck failed"
       ERRORS=$((ERRORS + 1))
     fi

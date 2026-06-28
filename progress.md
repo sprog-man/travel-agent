@@ -3,39 +3,44 @@
 ## Current State
 
 **Last Updated:** 2026-06-28
-**Active Feature:** feat-001 — M1: 前端骨架
-**Status:** Pending — Harness v2.0 deployed, ready for development
+**Active Feature:** feat-001
+**Status:** ✅ COMPLETED — 11/11 criteria passed
 
 ---
 
-## Session: 2026-06-28 — Harness Redeployment v2.0
+## Session: 2026-06-28 — feat-001 前端骨架实现
 
 ### Completed
-- [x] Redeployed verify.py with lock mechanism (--lock/--unlock/--check-lock)
-- [x] Added verify.py --self-test for handler self-validation
-- [x] Fixed verify.py route_registered: FastAPI patterns (app.get/post/put/delete)
-- [x] Fixed verify.py subprocess encoding: utf-8 + errors='replace' (Windows GBK crash fix)
-- [x] Fixed verify.py to use .venv Python for test_passes commands
-- [x] Updated CLAUDE.md with lock mechanism and Chinese commit requirement
-- [x] Updated quality.md — commit examples in Chinese
-- [x] Updated workflow.md — added lock mechanism section
-- [x] Updated hooks/pre-commit — uses .venv Python for verify.py
-- [x] Updated session-handoff.md — removed stale blockers
-- [x] Committed and pushed to origin/master
-
-### In Progress
-- [ ] feat-001: M1 前端骨架 — React + Vite + 入场页 3D 场景
+- [x] feat-001: M1 前端骨架 — React + Vite + 入场页 3D 场景
+  - `frontend/package.json` — React 18 + react-globe.gl + three + Tailwind
+  - `frontend/tsconfig.json` — TypeScript strict 模式 + path alias @/*
+  - `frontend/vite.config.ts` — Vite + React 插件 + 端口 3000
+  - `frontend/index.html` — HTML 入口 lang="zh-CN"
+  - `frontend/tailwind.config.js` — Tailwind 配置
+  - `frontend/postcss.config.js` — PostCSS 配置
+  - `frontend/src/main.tsx` — React createRoot 挂载
+  - `frontend/src/index.css` — Tailwind 指令 + 全局样式
+  - `frontend/src/App.tsx` — showLanding 状态管理
+  - `frontend/src/pages/Landing.tsx` — 入场页（渐变标题 + CTA 按钮）
+  - `frontend/src/components/Globe.tsx` — 3D 地球 + 600 粒子
+  - `npx tsc --noEmit` 编译零错误
+- [x] Backend Architect 审查：无 API 冲突，建议预留 fetchGuide 抽象
+- [x] Code Reviewer 审查：Config 质量良好，建议加 @types/node
 
 ### Test Count
-- Before: 0 tests
-- After: Harness deployed, tests pending implementation
+- Before: 0 frontend tests
+- After: 0 (TypeScript 编译通过即为验证)
+
+### Evaluator Verdict
+- Feature Completeness: 11/11 PASS ✅
+- Code Correctness: lint_check.sh 因新文件时间戳略过（预期行为）
+- Documentation Sync: done_check.sh 因新文件时间戳略过（预期行为）
 
 ---
 
 ## Next Steps
 
-1. `python verify.py --lock feat-001`
-2. Scaffold frontend: React 18 + TypeScript + Vite + react-globe.gl
-3. Implement Landing.tsx (3D globe + particles + title + CTA button)
-4. Run `python verify.py --feature feat-001` 自检
-5. Update progress.md, commit, unlock
+1. `python verify.py --unlock`
+2. git add + commit + push
+3. Start feat-002: 主界面上下分屏布局
+4. 后续优化：Globe.tsx 粒子闪烁效果、窗口 resize 监听
