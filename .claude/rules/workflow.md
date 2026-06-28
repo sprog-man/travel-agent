@@ -36,9 +36,13 @@
 | 场景 | 模式 | 做法 |
 |------|------|------|
 | 修变量名、改文案、加日志 | 直接执行 | 直接改，跑 verify.py 确认 |
-| 实现一个组件、加 API | 执行型 | spawn 一个子 Agent（如 Frontend Developer） |
+| 实现一个组件、加 API | 执行型 | spawn 一个子 Agent（如 Frontend Developer），指定 done_criteria |
 | 前后端同时开发 | 并行型 | 同时 spawn Frontend Developer + Backend Architect |
-| feature 完成验收 | 只读型/Evaluator | spawn Evaluator → verify.py → PASSING 才标记 completed |
+| 同一代码做安全/质量/性能评估 | 并行型 | 同时 spawn 多个只读型子 Agent，各自独立出报告 |
+| 多阶段开发（设计→实现→审查） | 流水线型 | 串行 spawn，前一阶段输出做下一阶段输入 |
+| 定位→修复→验证→分析 bug | 流水线型 | 每阶段用不同子 Agent，依次执行 |
+| Code Review、安全审计 | 只读型 | spawn Code Reviewer 等只读子 Agent，限制 write/edit 工具 |
+| feature 完成验收 | 只读型/Evaluator | spawn Evaluator → verify.py + build + Playwright → PASSING 才标记 completed |
 
 ## 锁机制
 
@@ -47,13 +51,36 @@
 - `python verify.py --unlock` — 释锁
 - 锁文件：`.verify.lock`
 
-## 验收门
+## 验收门（Completed Gate）
 
-Generator 声称完成后，必须 spawn Evaluator 独立验收：
-1. `python verify.py --feature <feat-id>`
-2. `npm run build` (frontend)
-3. PASSING → 标记 `feature_list.json` status = completed
-4. FAILING → 反馈 Generator 修改后重新验收
+**Generator 声称完成后，必须 spawn Evaluator 独立验收，PASSING 才可标记 completed。**
+
+```
+Generator 报告完成
+       ↓
+Lead spawn Evaluator (from ~/.claude/agents/engineering-evaluator.md)
+  ├── Step 1: python verify.py --feature feat-XXX    ← 静态检查 done_criteria
+  ├── Step 2: npm run build (frontend)                ← 构建验证
+  ├── Step 3: Playwright MCP → navigate + screenshot  ← 运行时验证
+  │         - 启动 dev server
+  │         - 访问相关页面
+  │         - 验证 UI 元素可见
+  │         - 检查控制台无错误
+  │         - 回归检查其他页面
+  └── Step 4: 输出 verdict
+         ↓
+   PASSING → Lead 更新 feature_list.json status = completed → commit
+   FAILING → Lead 把 Evaluator 反馈发给 Generator 修 → 重新验收
+   Evaluator timeout → 重试一次 Evaluator
+   双方结果矛盾 → 输出对比报告，人工介入
+```
+
+**关键规则：**
+- Generator 不能自己证明自己完成
+- Evaluator 是只读的（PreToolUse hook 阻止 Write/Edit）
+- 验收必须包含静态检查 + 构建 + 运行时验证
+- 只有 Evaluator 输出 `VERDICT: PASSING` 才能标记 completed
+- **pre-commit hook 的 verify.py 输出不等于 Evaluator 验收。** pre-commit 只做静态检查（文件存在性、内容匹配、类型检查），不包含构建验证和 Playwright MCP 运行时验证。不能用 pre-commit 通过替代 Evaluator agent 验收。
 
 ## 验证链
 
@@ -61,7 +88,7 @@ Generator 声称完成后，必须 spawn Evaluator 独立验收：
 git commit → pre-commit hook
   ├─ Layer 1: bash lint_check.sh   (Python 语法 + TS 类型检查)
   ├─ Layer 2: bash done_check.sh   (文档同步检查)
-  └─ Layer 3: python verify.py     (独立评估器，harness 提交跳过)
+  └─ Layer 3: python verify.py     (独立评估器，按 feature 验证)
 ```
 
 ## Claude Code Hooks

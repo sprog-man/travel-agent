@@ -340,11 +340,14 @@ class Evaluator:
 
     def run_all_checks(self):
         """Run all verification layers"""
-        print_header("INDEPENDENT EVALUATOR")
+        print_header("STATIC VERIFICATION (verify.py)")
         print(f"Timestamp: {datetime.now().isoformat()}")
         print(f"Working directory: {os.getcwd()}")
         if self.feature_id:
             print(f"Checking feature: {self.feature_id}")
+        print()
+        print(f"  NOTE: This is verify.py static checks only.")
+        print(f"  Full Evaluator verification requires spawned agent with Playwright MCP.")
         print()
 
         self.check_code_correctness()
@@ -365,11 +368,12 @@ class Evaluator:
         print()
         if passed == total:
             print(f"{Colors.GREEN}  VERDICT: PASSING{Colors.NC}")
-            print(f"  All verification layers passed.")
+            print(f"  All static checks passed.")
+            print(f"  NOTE: This is NOT full Evaluator verification (no build check, no Playwright MCP).")
             return 0
         else:
             print(f"{Colors.RED}  VERDICT: FAILING{Colors.NC}")
-            print(f"  {total - passed} verification layer(s) failed.")
+            print(f"  {total - passed} static check(s) failed.")
             return 1
 
 
@@ -422,7 +426,7 @@ def run_self_test():
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser(description="Independent Evaluator")
+    parser = argparse.ArgumentParser(description="Static Verification (verify.py) — NOT full Evaluator agent")
     parser.add_argument("--feature", help="Check specific feature ID")
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
     parser.add_argument("--self-test", action="store_true", help="Self-test all criterion handlers")

@@ -69,3 +69,17 @@
 
 ### Evaluator Feedback
 - Dev 模式下 `optimizeDeps.exclude` 不阻止 esbuild 处理 three/webgpu，需设置 `esbuildOptions.target: 'esnext'`
+
+## Session: 2026-06-28 — Harness 工程命名问题修复
+
+### Completed
+- [x] pre-commit hook Layer 3 标签从 "Independent Evaluator" 改为 "Static verification (verify.py)" — [hooks/pre-commit:44-46](hooks/pre-commit#L44-L46)
+- [x] pre-commit hook echo 文本从 "running evaluator" 改为 "running static checks (verify.py)" — [hooks/pre-commit:80](hooks/pre-commit#L80)
+- [x] verify.py 输出标题从 "INDEPENDENT EVALUATOR" 改为 "STATIC VERIFICATION (verify.py)" — [verify.py:343](verify.py#L343)
+- [x] verify.py VERDICT 输出增加 NOTE：说明不含 build check 和 Playwright MCP — [verify.py:367-370](verify.py#L367-L370)
+- [x] workflow.md 验收门增加显式规则：pre-commit hook 的 verify.py 输出不等于 Evaluator agent 验收 — [.claude/rules/workflow.md:82](.claude/rules/workflow.md#L82)
+
+### Root Cause
+- Skill 模板的 verify.py 使用 "INDEPENDENT EVALUATOR" + "VERDICT: PASSING" 格式
+- 部署时 pre-commit hook 的 echo 也使用 "evaluator" 措辞
+- 导致 pre-commit 通过 ≈ Evaluator 验收的假象，agent 会跳过 spawn Evaluator + Playwright 验证

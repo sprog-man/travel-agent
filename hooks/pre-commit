@@ -41,7 +41,9 @@ if [ -f "done_check.sh" ]; then
   fi
 fi
 
-# ---- Layer 3: Independent Evaluator ----
+# ---- Layer 3: Static verification (verify.py) ----
+# NOTE: This is NOT the full Evaluator agent verification (which includes Playwright MCP).
+# This only runs verify.py's static checks at commit time.
 # Determine which feature is being committed based on staged file paths.
 # Only verify that specific feature. Skip if no feature can be determined.
 if [ -f "verify.py" ]; then
@@ -77,7 +79,7 @@ if [ -f "verify.py" ]; then
 
   if [ -n "$FEATURE_ID" ]; then
     echo ""
-    echo "=== pre-commit: running evaluator for $FEATURE_ID ==="
+    echo "=== pre-commit: running static checks (verify.py) for $FEATURE_ID ==="
     echo ""
 
     if [ -f ".venv/Scripts/python.exe" ]; then
@@ -101,7 +103,7 @@ if [ -f "verify.py" ]; then
 
     if [ $VERIFY_RESULT -ne 0 ]; then
       echo ""
-      echo "=== COMMIT REJECTED: evaluator failed for $FEATURE_ID ==="
+      echo "=== COMMIT REJECTED: verify.py check failed for $FEATURE_ID ==="
       echo "Fix the issues above, stage changes, and commit again."
       echo "To bypass (emergency only): git commit --no-verify"
       echo ""
@@ -109,7 +111,7 @@ if [ -f "verify.py" ]; then
     fi
   else
     echo ""
-    echo "=== pre-commit: skipping evaluator (harness/template config only) ==="
+    echo "=== pre-commit: skipping verify.py (harness/template config only) ==="
   fi
 fi
 
