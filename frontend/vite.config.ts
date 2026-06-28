@@ -16,6 +16,9 @@ export default defineConfig({
   optimizeDeps: {
     include: ['three'],
     exclude: ['three/webgpu'],
+    esbuildOptions: {
+      target: 'esnext',
+    },
   },
   build: {
     target: 'esnext',

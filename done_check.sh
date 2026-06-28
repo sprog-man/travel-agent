@@ -48,7 +48,8 @@ if [ ! -f "$PROGRESS" ]; then
 else
   # Find .py / .js / .ts / .rs / .go files newer than progress.md
   NEWER=$(find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.tsx" -o -name "*.jsx" \) \
-    -not -path "./node_modules/*" -not -path "./frontend/node_modules/*" -not -path "./.git/*" -not -path "./__pycache__/*" \
+    -not -path "./node_modules/*" -not -path "./frontend/node_modules/*" -not -path "./frontend/dist/*" \
+    -not -path "./.git/*" -not -path "./__pycache__/*" \
     -not -path "./target/*" -not -path "./.venv/*" -newer "$PROGRESS" 2>/dev/null | head -10)
 
   if [ -n "$NEWER" ]; then
@@ -84,7 +85,8 @@ DECISIONS="DECISIONS.md"
 if [ -f "$DECISIONS" ]; then
   # Check if core architecture files changed
   CORE_FILES=$(find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.tsx" -o -name "*.jsx" \) \
-    -not -path "./node_modules/*" -not -path "./frontend/node_modules/*" -not -path "./.git/*" -not -path "./__pycache__/*" \
+    -not -path "./node_modules/*" -not -path "./frontend/node_modules/*" -not -path "./frontend/dist/*" \
+    -not -path "./.git/*" -not -path "./__pycache__/*" \
     -not -path "./target/*" -not -path "./.venv/*" \
     -not -name "test_*" -not -name "*_test*" \
     -newer "$DECISIONS" 2>/dev/null | head -10)
@@ -105,7 +107,8 @@ echo ""
 echo "  [4. Debug artifacts]"
 
 DEBUG_FOUND=0
-for dir in $(find . -type d -not -path "./node_modules/*" -not -path "./frontend/node_modules/*" -not -path "./.git/*" -not -path "./__pycache__/*" -not -path "./target/*" -not -path "./.venv/*" -maxdepth 1 -type d 2>/dev/null | grep -v "^\.$"); do
+for dir in $(find . -type d -not -path "./node_modules/*" -not -path "./frontend/node_modules/*" -not -path "./frontend/dist/*" \
+  -not -path "./.git/*" -not -path "./__pycache__/*" -not -path "./target/*" -not -path "./.venv/*" -maxdepth 1 -type d 2>/dev/null | grep -v "^\.$"); do
   for pattern in 'breakpoint()' 'pdb.set_trace()' 'console.log' 'debugger'; do
     MATCHES=$(grep -rln "$pattern" "$dir" --include="*.py" --include="*.js" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules 2>/dev/null | head -5)
     if [ -n "$MATCHES" ]; then

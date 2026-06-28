@@ -59,3 +59,13 @@
 ### Evaluator Feedback
 - **Tailwind v4 syntax in v3 project**: `defineConfig` export not available in v3 → renamed to CommonJS `module.exports`
 - **three.js WebGPU top-level await**: `three.webgpu.js` uses `await navigator.gpu` incompatible with esbuild target chrome87 → added `build.target: 'esnext'` and `exclude: ['three/webgpu']`
+
+## Session: 2026-06-28 — feat-001 Evaluator 第二次修复
+
+### Completed
+- [x] vite.config.ts 添加 `optimizeDeps.esbuildOptions.target: 'esnext'`（修复 dev 模式崩溃）— [vite.config.ts:19-21](frontend/vite.config.ts#L19-L21)
+- [x] done_check.sh 添加 `frontend/dist/*` 排除（避免构建产物触发文档同步告警）— [done_check.sh:50-52](done_check.sh#L50-L52)
+- [x] dev server 启动验证 HTTP 200 ✅
+
+### Evaluator Feedback
+- Dev 模式下 `optimizeDeps.exclude` 不阻止 esbuild 处理 three/webgpu，需设置 `esbuildOptions.target: 'esnext'`
