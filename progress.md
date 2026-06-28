@@ -61,6 +61,9 @@
 - vite build：成功（3.69s），无错误
 - 代码审查（Code Reviewer）：Main.tsx separator 支持鼠标 + 触摸 + 键盘，drag overlay 防止 iframe focus stealing
 - Evaluator 独立验收：VERDICT PASSING（静态检查 + 构建 + Playwright MCP 运行时验证全通过）
+- [x] Three.js 版本兼容修复：three 0.167.1 → 0.185.0（匹配 globe.gl 内嵌版本）
+  - 根因：`three-render-objects` 调用 `Matrix4.determinantAffine()` 在 0.167.1 中不存在
+  - 清 Vite 缓存 + 重启 dev server 后 Globe 正常渲染
 
 ---
 
