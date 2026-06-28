@@ -3,8 +3,8 @@
 ## Current State
 
 **Last Updated:** 2026-06-28
-**Active Feature:** feat-002
-**Status:** 🔄 IN PROGRESS — feat-002 implementation complete, awaiting Evaluator verification
+**Active Feature:** None (feat-002 completed)
+**Status:** ✅ COMPLETED — Evaluator VERDICT: PASSING
 
 ---
 
@@ -58,7 +58,9 @@
 ### Evidence
 - TypeScript 编译：零错误（tsc --noEmit）
 - verify.py 静态检查：8/8 criteria PASS
+- vite build：成功（3.69s），无错误
 - 代码审查（Code Reviewer）：Main.tsx separator 支持鼠标 + 触摸 + 键盘，drag overlay 防止 iframe focus stealing
+- Evaluator 独立验收：VERDICT PASSING（静态检查 + 构建 + Playwright MCP 运行时验证全通过）
 
 ---
 

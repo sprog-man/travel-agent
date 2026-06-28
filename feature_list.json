@@ -35,7 +35,7 @@
     {
       "id": "feat-002",
       "name": "M1: 主界面 — 上下分屏 6:4（地球 + 对话面板）",
-      "status": "pending",
+      "status": "completed",
       "description": "实现主界面布局：上方 60% 3D 地球（react-globe.gl），下方 40% 对话面板（ChatPanel），支持拖拽调整分割比例。入场页点击后平滑过渡到主界面。",
       "dependencies": ["feat-001"],
       "done_criteria": [
