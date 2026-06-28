@@ -44,3 +44,18 @@
 2. git add + commit + push
 3. Start feat-002: 主界面上下分屏布局
 4. 后续优化：Globe.tsx 粒子闪烁效果、窗口 resize 监听
+
+---
+
+## Session: 2026-06-28 — feat-001 Evaluator 修复 build 问题
+
+### Completed
+- [x] Evaluator 独立验收发现 FAILING（Tailwind v4/v3 不兼容 + three.js WebGPU top-level await）
+- [x] tailwind.config.js 改为 CommonJS 格式（兼容 Tailwind v3.4.x）
+- [x] vite.config.ts 添加 build.target=esnext + exclude three/webgpu
+- [x] npx vite build ✅, npx tsc --noEmit ✅
+- [x] .gitignore 添加 frontend/dist/ 排除构建产物
+
+### Evaluator Feedback
+- **Tailwind v4 syntax in v3 project**: `defineConfig` export not available in v3 → renamed to CommonJS `module.exports`
+- **three.js WebGPU top-level await**: `three.webgpu.js` uses `await navigator.gpu` incompatible with esbuild target chrome87 → added `build.target: 'esnext'` and `exclude: ['three/webgpu']`
