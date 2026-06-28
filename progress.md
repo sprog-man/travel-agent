@@ -70,7 +70,19 @@
 ### Evaluator Feedback
 - Dev 模式下 `optimizeDeps.exclude` 不阻止 esbuild 处理 three/webgpu，需设置 `esbuildOptions.target: 'esnext'`
 
-## Session: 2026-06-28 — Harness 工程命名问题修复
+## Session: 2026-06-28 — feat-001 入场页 ActiveTheory 风格重做
+
+### Completed
+- [x] CustomCursor.tsx — 自定义光标，lerp 插值，mix-blend-mode: difference — [CustomCursor.tsx](frontend/src/components/CustomCursor.tsx)
+- [x] Landing.tsx 重写 — 三段式滚动：Hero(超大标题+Globe) → Features(三卡片交错) → CTA — [Landing.tsx](frontend/src/pages/Landing.tsx)
+- [x] Globe.tsx 增强 — 800粒子, auto-rotate, 青色配色, 环形装饰, glow — [Globe.tsx](frontend/src/components/Globe.tsx)
+- [x] index.css 添加动画 — fadeUp/glow/scroll-reveal/stagger — [index.css](frontend/src/index.css)
+- [x] App.tsx 移除 overflow:hidden 支持滚动 — [App.tsx](frontend/src/App.tsx)
+- [x] tsc --noEmit 零错误, vite build 通过, dev server HTTP 200
+
+### Root Cause
+- SPEC.md 要求"类似 activetheory.net 风格"的沉浸式场景
+- feat-001 初始实现仅为简单居中布局，未达到 SPEC 要求
 
 ### Completed
 - [x] pre-commit hook Layer 3 标签从 "Independent Evaluator" 改为 "Static verification (verify.py)" — [hooks/pre-commit:44-46](hooks/pre-commit#L44-L46)
