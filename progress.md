@@ -3,8 +3,8 @@
 ## Current State
 
 **Last Updated:** 2026-06-29
-**Active Feature:** 电影级地球视觉质量升级（阶段 1/3 完成）
-**Status:** 🚧 IN PROGRESS — PBR 材质升级完成
+**Active Feature:** 电影级地球视觉质量升级（阶段 2/3 完成）
+**Status:** 🚧 IN PROGRESS — 多层星空 + 深空元素完成
 
 ---
 
@@ -23,8 +23,20 @@
   - `frontend/src/scenes/MainScene.tsx:73-82` — OrbitControls：minDistance 7, maxDistance 30
   - `frontend/src/scenes/MainScene.tsx:40-50` — 光照优化：真实太阳光 + hemisphereLight
 
+### 阶段 2 完成：多层星空 + 深空元素
+- [x] 多层星空系统（24,000+ 星星）
+  - `frontend/src/components/three/StarField.tsx` — 6 层星空组件（微小/中等/明亮/蓝色/橙色/红色星星）
+  - `frontend/src/components/three/StarField.tsx:95-155` — 每层独立旋转速度、颜色、尺寸、不透明度
+  - `frontend/src/components/three/StarField.tsx:87-91` — AdditiveBlending 实现星光叠加效果
+- [x] 深空元素
+  - `frontend/src/components/three/DeepSpaceElements.tsx:20-75` — 程序化星云纹理（紫色渐变 + 5000 星尘点）
+  - `frontend/src/components/three/DeepSpaceElements.tsx:78-132` — 太空尘埃粒子系统（5000 粒子）
+  - `frontend/src/components/three/DeepSpaceElements.tsx:135-262` — 流星系统（8-45 秒随机间隔，带拖尾效果）
+- [x] 集成到主场景
+  - `frontend/src/scenes/MainScene.tsx:1-10` — 导入 StarField + DeepSpaceElements
+  - `frontend/src/scenes/MainScene.tsx:55-59` — 替换旧的 Stars 组件为多层星空
+
 ### 待完成
-- [ ] 阶段 2：多层星空系统（6 层）+ 深空元素（星云、流星、尘埃）
 - [ ] 阶段 3：后期处理（Bloom + HDR + ACES Tone Mapping）
 
 ---

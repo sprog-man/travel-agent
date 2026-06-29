@@ -1,18 +1,21 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Stars, PerspectiveCamera, OrbitControls } from '@react-three/drei';
+import { PerspectiveCamera, OrbitControls } from '@react-three/drei';
 import Globe from '../components/three/Globe';
 import CameraController from '../components/three/CameraController';
 import InteractionController from '../components/three/InteractionController';
 import MarkerLayer from '../components/three/MarkerLayer';
+import StarField from '../components/three/StarField';
+import DeepSpaceElements from '../components/three/DeepSpaceElements';
 import { sampleMarkers } from '../data/markers';
 
 /**
  * MainScene — 持续的 Three.js 场景
  *
  * 架构：
- * - Space Background
- * - Star Layer
+ * - Deep Space Background (6-layer gradient)
+ * - Multi-layer Star Field (6 layers, 24k+ stars)
+ * - Deep Space Elements (Nebula, Dust, Meteors)
  * - Globe (Earth + Atmosphere + Clouds)
  * - Camera Controller
  * - Floating UI Layer (DOM overlay)
@@ -52,16 +55,11 @@ const MainScene: React.FC = () => {
           intensity={0.5}
         />
 
-        {/* Dense Star Field */}
-        <Stars
-          radius={300}
-          depth={60}
-          count={15000}
-          factor={4}
-          saturation={0.3}
-          fade
-          speed={0.5}
-        />
+        {/* Multi-layer Star Field (24k+ stars across 6 layers) */}
+        <StarField />
+
+        {/* Deep Space Elements (Nebula, Dust, Meteors) */}
+        <DeepSpaceElements />
 
         {/* Globe */}
         <Suspense fallback={null}>
