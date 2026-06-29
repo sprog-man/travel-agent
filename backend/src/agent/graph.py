@@ -44,6 +44,9 @@ def review_router(state: TravelState) -> str:
 
     注意：这是条件边的路由函数，不是图节点。
     iteration_count 的递增由 planning_node 负责。
+
+    TODO: feat-006 将在此处接入 user_feedback，
+    当前循环是结构骨架，每次迭代数据不变。
     """
     iteration = state.get("iteration_count", 0)
     if iteration >= 5:

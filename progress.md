@@ -3,8 +3,47 @@
 ## Current State
 
 **Last Updated:** 2026-06-29
-**Active Feature:** feat-005 Code Review 修复
+**Active Feature:** feat-003+004 Code Review 第二轮修复
 **Status:** ✅ COMPLETED
+
+---
+
+## Session: 2026-06-29 — feat-003+004 Code Review 第二轮修复
+
+### 问题
+Code Reviewer 使用 `engineering-code-reviewer.md` agent 定义重新审查，发现 3 Critical + 4 Major。
+
+### 修复内容
+
+**Critical 修复：**
+1. `main.py:51-53` — WebSocket 输入改用 TravelPlanRequest Pydantic 校验
+2. `main.py:91-94` — itinerary 序列化使用 `.model_dump()` 避免 TypeError
+3. `main.py:30-35` — 启动时校验 CORS 配置防止生产环境误配 `*`
+
+**Major 修复：**
+1. `main.py:22-27` — `_validate_api_keys()` 启动时检查必需/可选 Key
+2. `main.py:113-116` — 内层 except 收窄为 `WebSocketDisconnect`，不再吞掉其他异常
+3. `main.py:74-78` — `_graph_semaphore.locked()` 检查，防止单客户端占满并发槽
+4. `graph.py:47-53` — review_router 添加 TODO 注释说明 feat-006 将接入 user_feedback
+
+### Evaluator 验收
+- ✅ verify.py: feat-003 11/11, feat-004 7/7
+- ✅ pip install -e . 成功
+- ✅ 所有模块导入正常
+- ✅ uvicorn 启动 + /api/health 返回 200
+- ✅ TravelPlanRequest 校验正常（缺 destination 时抛 ValidationError）
+
+### 证据
+- `backend/src/main.py:22-27` — API Key 启动校验
+- `backend/src/main.py:30-35` — CORS 启动校验
+- `backend/src/main.py:51-53` — TravelPlanRequest 输入校验
+- `backend/src/main.py:91-94` — itinerary.model_dump() 序列化
+- `backend/src/main.py:109-116` — 错误处理收窄
+- `backend/src/agent/graph.py:47-53` — review_router TODO 注释
+
+---
+
+## 下一步计划
 
 ---
 
