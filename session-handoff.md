@@ -1,13 +1,13 @@
 # Session Handoff
 
-## Last Updated: 2026-06-29 19:49
+## Last Updated: 2026-06-29 19:59
 
 ## Current State
-- **Active Feature:** None (feat-004 completed, 工具层已集成)
+- **Active Feature:** None（Code Review 修复完成）
 - **Lock:** Released
 - **All Features:** 5/10 completed
 - **Dev Server:** http://localhost:3000 正常运行 ✅
-- **Last Commit:** 591989f (feat-003 后端骨架)
+- **Last Commit:** e5a44a6 (feat-004 工具集成)
 
 ## 本次 Session 完成的工作
 
@@ -17,28 +17,29 @@
 - StateGraph: intent → planning → review 循环
 
 ### 2. feat-004: 高德 MCP 工具集成 ✅
+- 8 个高德 API 工具 + Tavily 搜索 + Unsplash 图片 + 汇率工具
+- TOOL_REGISTRY 注册 4 个工具模块
 
-**变更文件：**
-- `backend/src/tools/amap_mcp.py` — 高德 API 8 个工具（天气/POI/路线/地理编码）
-- `backend/src/tools/tavily_search.py` — Tavily 网络搜索适配层
-- `backend/src/tools/unsplash_images.py` — Unsplash 景点配图检索
-- `backend/src/tools/currency.py` — 汇率查询工具
-- `backend/src/agent/graph.py` — 新增 TOOL_REGISTRY 注册 4 个工具模块
+### 3. Evaluator 独立验收 ✅
+- feat-003: VERDICT: PASSING（11/11, uvicorn health check 200）
+- feat-004: VERDICT: PASSING（7/7, 模块导入成功）
 
-**高德 MCP 工具清单：**
-| 工具 | 功能 |
-|------|------|
-| amap_weather | 城市天气查询 |
-| amap_poi_search | POI 关键词搜索 |
-| amap_route_driving | 驾车路线规划 |
-| amap_route_walking | 步行路线规划 |
-| amap_geocode | 地理编码（地址→坐标） |
-| amap_reverse_geocode | 逆地理编码（坐标→地址） |
-| amap_poi_around | 周边 POI 搜索 |
+### 4. Code Review 修复 ✅
+修复 4 Critical + 7 Major 问题：
 
-**验证：**
-- ✅ verify.py --feature feat-004: 7/7 criteria passed
-- ✅ lint_check.sh: PASS
+**Critical：**
+- 死循环：planning_node 递增 iteration_count
+- 命名：review_node → review_router
+- 初始化：build_graph() 移到 lifespan
+- 并发：asyncio.Semaphore(5)
+
+**Major：**
+- API Key 延迟读取（4 个工具模块）
+- AMAP_KEY 空值校验
+- 错误信息不泄露内部异常
+- structlog 替代 print
+- CORS 从环境变量读取
+- TravelState total=True + NotRequired
 
 ## Completed Features
 - **feat-001** (M1): 前端骨架 — deprecated
@@ -52,11 +53,13 @@
   - Dependencies: feat-002 ✅, feat-003 ✅
   - Ready to start
 
-## Known Issues & TODOs
-- [ ] intent_node / planning_node 为占位实现，待集成 LLM
-- [ ] LocationInfoCard 缺少反向地理编码（amap_reverse_geocode 已实现，待前端接入）
-- [ ] console.log 调试语句需清理
+## 本次遵循的流程
+1. ✅ 会话协议启动（git log + 读文件 + verify）
+2. ✅ 取锁 → 开发 → verify → 更新文档 → 提交
+3. ✅ Evaluator 独立验收
+4. ✅ Code Reviewer 代码审查
+5. ✅ 修复审查发现的问题
 
 ## 下次开始的建议
 1. 开发 feat-005: 前后端联调 WebSocket 通信
-2. 或继续后端：feat-006 完整 Agent 工作流
+2. feat-005 已有的前端代码：useWebSocket hook + api.ts 已完整实现

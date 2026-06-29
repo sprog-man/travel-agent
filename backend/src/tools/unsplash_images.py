@@ -5,8 +5,12 @@ import os
 import httpx
 
 UNSPLASH_API_URL = "https://api.unsplash.com/search/photos"
-UNSPLASH_API_KEY = os.getenv("UNSPLASH_API_KEY", "")
 DEFAULT_TIMEOUT = 10.0
+
+
+def _get_unsplash_key() -> str:
+    """在函数调用时读取 UNSPLASH_API_KEY."""
+    return os.environ.get("UNSPLASH_API_KEY", "")
 
 
 async def search_poi_images(query: str, count: int = 3) -> dict:
@@ -14,15 +18,17 @@ async def search_poi_images(query: str, count: int = 3) -> dict:
 
     Args:
         query: 景点名称或关键词
-        count: 返回图片数量
+        count: 返回图片数量（限制 1-30）
 
     Returns:
         图片 URL 列表
     """
-    if not UNSPLASH_API_KEY:
+    api_key = _get_unsplash_key()
+    if not api_key:
         return {"error": "UNSPLASH_API_KEY 未配置", "unavailable": True}
+    count = min(max(count, 1), 30)
 
-    headers = {"Authorization": f"Client-ID {UNSPLASH_API_KEY}"}
+    headers = {"Authorization": f"Client-ID {api_key}"}
     params = {"query": query, "per_page": count, "orientation": "landscape"}
 
     try:

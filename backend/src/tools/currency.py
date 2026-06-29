@@ -5,8 +5,12 @@ import os
 import httpx
 
 EXCHANGE_API_URL = "https://v6.exchangerate-api.com/v6"
-EXCHANGE_API_KEY = os.getenv("EXCHANGE_API_KEY", "")
 DEFAULT_TIMEOUT = 10.0
+
+
+def _get_exchange_key() -> str:
+    """在函数调用时读取 EXCHANGE_API_KEY."""
+    return os.environ.get("EXCHANGE_API_KEY", "")
 
 
 async def get_exchange_rate(base_currency: str = "CNY", target_currency: str = "USD") -> dict:
@@ -19,10 +23,11 @@ async def get_exchange_rate(base_currency: str = "CNY", target_currency: str = "
     Returns:
         汇率数据
     """
-    if not EXCHANGE_API_KEY:
+    api_key = _get_exchange_key()
+    if not api_key:
         return {"error": "EXCHANGE_API_KEY 未配置", "unavailable": True}
 
-    url = f"{EXCHANGE_API_URL}/{EXCHANGE_API_KEY}/pair/{base_currency}/{target_currency}"
+    url = f"{EXCHANGE_API_URL}/{api_key}/pair/{base_currency}/{target_currency}"
 
     try:
         async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:

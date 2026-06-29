@@ -5,13 +5,20 @@ import os
 import httpx
 
 AMAP_BASE_URL = "https://restapi.amap.com/v3"
-AMAP_KEY = os.getenv("AMAP_KEY", "")
 DEFAULT_TIMEOUT = 10.0
+
+
+def _get_amap_key() -> str:
+    """在函数调用时读取 AMAP_KEY，避免 import 时 .env 尚未加载导致为空."""
+    return os.environ.get("AMAP_KEY", "")
 
 
 async def _amap_request(path: str, params: dict) -> dict:
     """发送高德 API 请求."""
-    params["key"] = AMAP_KEY
+    api_key = _get_amap_key()
+    if not api_key:
+        return {"error": "AMAP_KEY 未配置", "unavailable": True}
+    params["key"] = api_key
     params["output"] = "json"
     async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
         resp = await client.get(f"{AMAP_BASE_URL}{path}", params=params)

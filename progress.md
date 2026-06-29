@@ -3,12 +3,41 @@
 ## Current State
 
 **Last Updated:** 2026-06-29
-**Active Feature:** feat-004 (高德 MCP 工具集成)
-**Status:** ✅ COMPLETED
+**Active Feature:** Code Review 修复
+**Status:** ✅ Code Review 修复完成
 
 ---
 
-## Session: 2026-06-29 — feat-004 高德 MCP 工具集成验证
+## Session: 2026-06-29 — Code Review 修复（4 Critical + 7 Major）
+
+### 问题
+Code Reviewer 发现 feat-003 + feat-004 后端代码存在 4 个 Critical 和 7 个 Major 问题。
+
+### 修复内容
+
+#### Critical 修复
+1. **死循环** — `graph.py:33` planning_node 现在每次执行递增 `iteration_count`
+2. **命名误导** — `graph.py:42` `review_node` → `review_router`，明确是路由函数
+3. **import 时崩溃** — `main.py:22` `build_graph()` 移到 lifespan 延迟初始化
+4. **并发保护** — `main.py:18` 添加 `asyncio.Semaphore(5)` 限制并发
+
+#### Major 修复
+1. **API Key 延迟读取** — 4 个工具模块改为函数内 `os.environ.get()` 读取
+2. **AMAP_KEY 空值校验** — `amap_mcp.py:17` `_amap_request` 增加空值检查
+3. **错误信息不泄露** — `main.py:95` 返回通用错误消息，异常仅写日志
+4. **structlog 替代 print** — `main.py:23` 使用 `logger.info()`
+5. **CORS 可配置** — `main.py:31` 从环境变量 `CORS_ORIGINS` 读取
+6. **TOOL_REGISTRY TODO** — `graph.py:11` 添加注释说明待 feat-006 接入
+7. **TravelState total=True** — `state.py:9` 必填字段用默认，可选字段用 `NotRequired`
+
+### 验证
+- [x] verify.py --feature feat-003 → 11/11 passed
+- [x] verify.py --feature feat-004 → 7/7 passed
+- [x] lint_check.sh → PASS
+
+---
+
+## 下一步计划
 
 ### 目标
 实现高德 MCP 客户端适配层（amap_mcp.py），注册天气/POI/路线 8 个工具到 LangGraph Agent，验证工具调用通过。

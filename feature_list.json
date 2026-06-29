@@ -9,7 +9,7 @@
     "test_passes": "subprocess.run exit code 0",
     "npm_build": "npm run build exits 0"
   },
-  "active_feature": "feat-004",
+  "active_feature": "none",
   "all_completed": false,
   "features": [
     {

@@ -1,24 +1,31 @@
 """FastAPI 入口 — 智能旅行攻略助手后端."""
 
+import asyncio
+import os
 from contextlib import asynccontextmanager
 
+import structlog
 from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.agent.graph import build_graph
-
 load_dotenv()
 
-travel_graph = build_graph()
+logger = structlog.get_logger()
+
+# 并发保护：限制同时执行的 Agent 图数量
+_graph_semaphore = asyncio.Semaphore(5)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期管理."""
-    print("🚀 智能旅行攻略助手后端启动")
+    """应用生命周期管理 — 延迟初始化图."""
+    from src.agent.graph import build_graph
+
+    app.state.travel_graph = build_graph()
+    logger.info("backend_started", port=8000)
     yield
-    print("👋 服务关闭")
+    logger.info("backend_stopped")
 
 
 app = FastAPI(
@@ -29,7 +36,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -45,6 +52,7 @@ async def health_check():
 @app.post("/api/guide")
 async def guide(request: dict):
     """轻量级攻略查询（同步 HTTP，后续连接 Tavily 搜索）."""
+    # TODO: 使用 TravelPlanRequest Pydantic model 替代 raw dict（feat-006 实现时统一）
     destination = request.get("destination", "")
     return {
         "destination": destination,
@@ -55,6 +63,7 @@ async def guide(request: dict):
 @app.websocket("/api/plan")
 async def plan_websocket(websocket: WebSocket):
     """行程规划 WebSocket — 全双工流式通信."""
+    # TODO: 添加 API Key 认证和连接速率限制（生产部署前必须实现）
     await websocket.accept()
     try:
         while True:
@@ -75,7 +84,8 @@ async def plan_websocket(websocket: WebSocket):
                 "content": f"正在为您规划 {destination} 的行程...",
             })
 
-            result = await travel_graph.ainvoke(initial_state)
+            async with _graph_semaphore:
+                result = await app.state.travel_graph.ainvoke(initial_state)
 
             await websocket.send_json({
                 "type": "itinerary",
@@ -90,10 +100,11 @@ async def plan_websocket(websocket: WebSocket):
     except WebSocketDisconnect:
         pass
     except Exception as e:
+        logger.error("plan_websocket_error", error=str(e))
         try:
             await websocket.send_json({
                 "type": "error",
-                "content": str(e),
+                "content": "行程规划服务暂时不可用，请稍后重试",
             })
         except Exception:
             pass

@@ -5,8 +5,12 @@ import os
 import httpx
 
 TAVILY_API_URL = "https://api.tavily.com/search"
-TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 DEFAULT_TIMEOUT = 10.0
+
+
+def _get_tavily_key() -> str:
+    """在函数调用时读取 TAVILY_API_KEY."""
+    return os.environ.get("TAVILY_API_KEY", "")
 
 
 async def tavily_search(query: str, max_results: int = 5) -> dict:
@@ -19,11 +23,12 @@ async def tavily_search(query: str, max_results: int = 5) -> dict:
     Returns:
         搜索结果列表
     """
-    if not TAVILY_API_KEY:
+    api_key = _get_tavily_key()
+    if not api_key:
         return {"error": "TAVILY_API_KEY 未配置", "unavailable": True}
 
     payload = {
-        "api_key": TAVILY_API_KEY,
+        "api_key": api_key,
         "query": query,
         "max_results": max_results,
         "search_depth": "basic",
