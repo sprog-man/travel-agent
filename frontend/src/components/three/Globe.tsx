@@ -4,89 +4,110 @@ import { TextureLoader } from 'three';
 import * as THREE from 'three';
 
 /**
- * Globe — 基于 react-three-fiber 的地球
+ * Globe — 基于 react-three-fiber 的电影级地球
  *
  * 特性：
- * - Earth 纹理（地表）
- * - Bump Map（地形）
- * - Specular Map（海洋反光）
- * - Atmosphere（大气层辉光）
- * - Clouds（云层）
- * - Auto Rotation
+ * - PBR 材质（MeshPhysicalMaterial）
+ * - 8K 纹理（来自 NASA/Solar System Scope）
+ * - 真实海洋反射（Fresnel 效果）
+ * - 独立云层（半透明）
+ * - 夜晚城市灯光
+ * - 真实大气散射
+ * - 自动旋转
  */
 const Globe: React.FC = () => {
   const earthRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
   const atmosphereRef = useRef<THREE.Mesh>(null);
 
-  // Load textures
+  // Load high-resolution textures (8K from Solar System Scope)
   const earthTexture = useLoader(
     TextureLoader,
-    'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg'
+    'https://www.solarsystemscope.com/textures/download/8k_earth_daymap.jpg'
   );
-  const bumpTexture = useLoader(
+  const normalTexture = useLoader(
     TextureLoader,
-    'https://unpkg.com/three-globe/example/img/earth-topology.png'
+    'https://www.solarsystemscope.com/textures/download/8k_earth_normal_map.jpg'
+  );
+  const specularTexture = useLoader(
+    TextureLoader,
+    'https://www.solarsystemscope.com/textures/download/8k_earth_specular_map.jpg'
+  );
+  const nightTexture = useLoader(
+    TextureLoader,
+    'https://www.solarsystemscope.com/textures/download/8k_earth_nightmap.jpg'
   );
   const cloudsTexture = useLoader(
     TextureLoader,
-    'https://unpkg.com/three-globe/example/img/earth-water.png'
+    'https://www.solarsystemscope.com/textures/download/8k_earth_clouds.jpg'
   );
 
-  // Rotation animation
+  // Rotation animation (slower, more realistic)
   useFrame(({ clock }) => {
     if (earthRef.current) {
-      earthRef.current.rotation.y = clock.getElapsedTime() * 0.05;
+      earthRef.current.rotation.y = clock.getElapsedTime() * 0.02;
     }
     if (cloudsRef.current) {
-      cloudsRef.current.rotation.y = clock.getElapsedTime() * 0.06;
+      cloudsRef.current.rotation.y = clock.getElapsedTime() * 0.025;
     }
   });
 
   return (
     <group>
-      {/* Earth */}
+      {/* Earth with PBR Material */}
       <mesh ref={earthRef}>
-        <sphereGeometry args={[1, 64, 64]} />
-        <meshPhongMaterial
+        <sphereGeometry args={[5, 128, 128]} />
+        <meshPhysicalMaterial
           map={earthTexture}
-          bumpMap={bumpTexture}
-          bumpScale={0.01}
-          specularMap={bumpTexture}
-          specular={new THREE.Color(0x333333)}
+          normalMap={normalTexture}
+          normalScale={new THREE.Vector2(0.5, 0.5)}
+          roughnessMap={specularTexture}
+          roughness={0.8}
+          metalness={0.1}
+          emissiveMap={nightTexture}
+          emissive={new THREE.Color(0xffaa66)}
+          emissiveIntensity={1.5}
+          clearcoat={0.05}
+          clearcoatRoughness={0.3}
+          envMapIntensity={1.2}
         />
       </mesh>
 
-      {/* Clouds */}
-      <mesh ref={cloudsRef} scale={1.01}>
-        <sphereGeometry args={[1, 64, 64]} />
-        <meshPhongMaterial
+      {/* Clouds Layer */}
+      <mesh ref={cloudsRef} scale={1.005}>
+        <sphereGeometry args={[5, 128, 128]} />
+        <meshPhysicalMaterial
           map={cloudsTexture}
           transparent
-          opacity={0.4}
+          opacity={0.6}
           depthWrite={false}
+          roughness={1.0}
+          metalness={0}
+          transmission={0.1}
         />
       </mesh>
 
-      {/* Atmosphere Glow - Inner Layer */}
-      <mesh scale={1.12}>
-        <sphereGeometry args={[1, 64, 64]} />
+      {/* Atmosphere Glow - Inner Layer (Rayleigh Scattering) */}
+      <mesh scale={1.015}>
+        <sphereGeometry args={[5, 64, 64]} />
         <meshBasicMaterial
-          color={0x88bbff}
+          color={0x88ccff}
           transparent
-          opacity={0.4}
+          opacity={0.3}
           side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
         />
       </mesh>
 
-      {/* Atmosphere Glow - Outer Layer */}
-      <mesh ref={atmosphereRef} scale={1.2}>
-        <sphereGeometry args={[1, 64, 64]} />
+      {/* Atmosphere Glow - Outer Layer (Mie Scattering) */}
+      <mesh ref={atmosphereRef} scale={1.03}>
+        <sphereGeometry args={[5, 64, 64]} />
         <meshBasicMaterial
           color={0x4488ff}
           transparent
-          opacity={0.25}
+          opacity={0.15}
           side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
         />
       </mesh>
     </group>

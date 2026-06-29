@@ -2,13 +2,34 @@
 
 ## Current State
 
-**Last Updated:** 2026-06-28
-**Active Feature:** None (feat-002 completed)
-**Status:** ✅ COMPLETED — Evaluator VERDICT: PASSING
+**Last Updated:** 2026-06-29
+**Active Feature:** 电影级地球视觉质量升级（阶段 1/3 完成）
+**Status:** 🚧 IN PROGRESS — PBR 材质升级完成
 
 ---
 
-## Session: 2026-06-28 — feat-001 前端骨架实现
+## Session: 2026-06-29 — 电影级地球视觉质量升级
+
+### 阶段 1 完成：PBR 材质升级
+- [x] 安装后期处理依赖
+  - `frontend/package.json` — 添加 @react-three/postprocessing, postprocessing, three-stdlib（--legacy-peer-deps）
+- [x] 升级地球材质到 PBR
+  - `frontend/src/components/three/Globe.tsx:16-50` — 升级为 MeshPhysicalMaterial，使用 8K 纹理（Solar System Scope）
+  - `frontend/src/components/three/Globe.tsx:63-83` — 添加 clearcoat、roughnessMap、normalMap、emissiveMap（夜晚城市灯光）
+  - `frontend/src/components/three/Globe.tsx:22` — 地球半径：1 → 5（填满视口）
+  - `frontend/src/components/three/Globe.tsx:86-108` — 大气散射使用 AdditiveBlending 模拟 Rayleigh/Mie 散射
+- [x] 调整相机和控制器
+  - `frontend/src/scenes/MainScene.tsx:32-38` — 相机：position [0,0,12], fov 50（电影 35mm 等效焦距）
+  - `frontend/src/scenes/MainScene.tsx:73-82` — OrbitControls：minDistance 7, maxDistance 30
+  - `frontend/src/scenes/MainScene.tsx:40-50` — 光照优化：真实太阳光 + hemisphereLight
+
+### 待完成
+- [ ] 阶段 2：多层星空系统（6 层）+ 深空元素（星云、流星、尘埃）
+- [ ] 阶段 3：后期处理（Bloom + HDR + ACES Tone Mapping）
+
+---
+
+## Session: 2026-06-28 — feat-002 主界面上下分屏实现
 
 ### Completed
 - [x] feat-001: M1 前端骨架 — React + Vite + 入场页 3D 场景

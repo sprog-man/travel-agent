@@ -28,20 +28,29 @@ const MainScene: React.FC = () => {
 
       {/* Three.js Canvas */}
       <Canvas className="w-full h-full">
-        {/* Camera */}
+        {/* Camera - Cinematic 35mm focal length equivalent */}
         <PerspectiveCamera
           makeDefault
-          position={[0, 0, 5]}
-          fov={45}
+          position={[0, 0, 12]}
+          fov={50}
           near={0.1}
-          far={1000}
+          far={2000}
         />
 
-        {/* Lights */}
-        <ambientLight intensity={0.2} />
-        <directionalLight position={[10, 10, 5]} intensity={1.5} color="#ffffff" />
-        <pointLight position={[-10, -10, -5]} intensity={0.8} color="#6688ff" />
-        <pointLight position={[5, -5, -10]} intensity={0.4} color="#ff88ff" />
+        {/* Lights - Realistic space lighting */}
+        <ambientLight intensity={0.1} />
+        <directionalLight
+          position={[50, 20, 30]}
+          intensity={2.5}
+          color="#ffffff"
+          castShadow={false}
+        />
+        <pointLight position={[-30, -20, -20]} intensity={0.3} color="#4488ff" />
+        <hemisphereLight
+          color="#ffffff"
+          groundColor="#000033"
+          intensity={0.5}
+        />
 
         {/* Dense Star Field */}
         <Stars
@@ -69,15 +78,17 @@ const MainScene: React.FC = () => {
         <InteractionController />
         <CameraController />
 
-        {/* OrbitControls for manual interaction */}
+        {/* OrbitControls - Adjusted for larger globe */}
         <OrbitControls
           enablePan={false}
           enableZoom={true}
-          minDistance={1.5}
-          maxDistance={10}
+          minDistance={7}
+          maxDistance={30}
           enableDamping={true}
           dampingFactor={0.05}
           rotateSpeed={0.5}
+          maxPolarAngle={Math.PI}
+          minPolarAngle={0}
         />
       </Canvas>
 

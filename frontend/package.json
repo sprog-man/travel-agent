@@ -12,13 +12,16 @@
   "dependencies": {
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
+    "@react-three/postprocessing": "^3.0.4",
     "framer-motion": "^12.42.0",
     "lucide-react": "^1.22.0",
+    "postprocessing": "^6.39.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-globe.gl": "^2.27.0",
     "react-router-dom": "^6.26.0",
-    "three": "^0.185.0"
+    "three": "^0.185.0",
+    "three-stdlib": "^2.36.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.5",
