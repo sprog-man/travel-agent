@@ -5,6 +5,15 @@ from typing import Literal
 from langgraph.graph import END, StateGraph
 
 from src.agent.state import TravelState
+from src.tools import amap_mcp, tavily_search, unsplash_images, currency
+
+# 工具注册表 — LangGraph Agent 调度使用的工具集合
+TOOL_REGISTRY = {
+    "amap_mcp": amap_mcp,
+    "tavily_search": tavily_search,
+    "unsplash_images": unsplash_images,
+    "currency": currency,
+}
 
 
 def intent_node(state: TravelState) -> dict:

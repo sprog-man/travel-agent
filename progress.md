@@ -3,57 +3,53 @@
 ## Current State
 
 **Last Updated:** 2026-06-29
-**Active Feature:** feat-003 (后端骨架)
+**Active Feature:** feat-004 (高德 MCP 工具集成)
 **Status:** ✅ COMPLETED
 
 ---
 
-## Session: 2026-06-29 — feat-003 后端骨架搭建
+## Session: 2026-06-29 — feat-004 高德 MCP 工具集成验证
 
 ### 目标
-搭建 FastAPI + LangGraph 后端骨架，定义 TravelState（LangGraph StateGraph），搭通意图提取节点和行程规划节点的基本图结构。
+实现高德 MCP 客户端适配层（amap_mcp.py），注册天气/POI/路线 8 个工具到 LangGraph Agent，验证工具调用通过。
 
 ### 完成的工作
 
-#### 1. 项目结构
-- [x] `backend/pyproject.toml` — 项目元数据 + 依赖（fastapi, langgraph, pydantic, uvicorn 等）
-- [x] `backend/.env.example` — 环境变量模板（LLM_API_KEY, AMAP_KEY, TAVILY_API_KEY 等）
-- [x] `backend/src/__init__.py`, `backend/src/agent/__init__.py`, `backend/src/schemas/__init__.py` — 包初始化
+#### 1. 高德 MCP 工具
+- [x] `backend/src/tools/amap_mcp.py` — 8 个高德 API 工具
+  - `amap_weather(city)` — 城市天气查询
+  - `amap_poi_search(keywords, city, types)` — POI 关键词搜索
+  - `amap_route_driving(origin, destination)` — 驾车路线规划
+  - `amap_route_walking(origin, destination)` — 步行路线规划
+  - `amap_geocode(address, city)` — 地理编码（地址→坐标）
+  - `amap_reverse_geocode(location)` — 逆地理编码（坐标→地址）
+  - `amap_poi_around(location, types, radius)` — 周边 POI 搜索
 
-#### 2. 数据模型
-- [x] `backend/src/schemas/travel.py` — TravelIntent（Pydantic v2）+ Itinerary + ItineraryItem
-  - TravelIntent: destination, start_date, end_date, budget, num_travelers, preferences, summary
-  - BudgetLevel 枚举: budget / moderate / luxury
+#### 2. Tavily 搜索工具
+- [x] `backend/src/tools/tavily_search.py` — Tavily 网络搜索适配层
+  - `tavily_search(query, max_results)` — 关键词搜索，返回结果+摘要
 
-#### 3. LangGraph State
-- [x] `backend/src/agent/state.py` — TravelState（TypedDict）
-  - user_input, destination, intent, itinerary, user_feedback, iteration_count, messages, tool_calls, error
+#### 3. Unsplash 图片工具
+- [x] `backend/src/tools/unsplash_images.py` — 景点配图检索
+  - `search_poi_images(query, count)` — 搜索景点横版配图
 
-#### 4. LangGraph 主图
-- [x] `backend/src/agent/graph.py` — StateGraph 构建
-  - 图结构: START → intent_node → planning_node → review_node → END / 循环
-  - intent_node: 意图提取（占位实现，待集成 LLM）
-  - planning_node: 行程规划（占位实现）
-  - review_node: 反馈判断，iteration_count ≥ 5 时结束循环
+#### 4. 汇率工具
+- [x] `backend/src/tools/currency.py` — 汇率查询
+  - `get_exchange_rate(base, target)` — 查询币种汇率
 
-#### 5. FastAPI 入口
-- [x] `backend/src/main.py` — FastAPI 入口 + CORS + 路由
-  - `GET /api/health` — 健康检查
-  - `POST /api/guide` — 轻量级攻略查询
-  - `WS /api/plan` — WebSocket 行程规划（全双工流式）
-  - CORS 允许 localhost:3000 和 5173
+#### 5. 工具注册
+- [x] `backend/src/agent/graph.py` — TOOL_REGISTRY 字典注册 4 个工具模块
 
 ### 验证
-- [x] `python verify.py --feature feat-003` → 11/11 criteria passed
-- [x] `lint_check.sh` → PASS（Python 语法 + TS 类型检查）
-- [x] `done_check.sh` → 文档同步更新中
+- [x] `python verify.py --feature feat-004` → 7/7 criteria passed
+- [x] `lint_check.sh` → PASS
 
 ### 证据
-- `backend/pyproject.toml:1-30` — 项目依赖配置
-- `backend/src/schemas/travel.py:1-70` — TravelIntent Pydantic 模型
-- `backend/src/agent/state.py:1-25` — TravelState TypedDict
-- `backend/src/agent/graph.py:1-60` — LangGraph StateGraph 主图
-- `backend/src/main.py:1-85` — FastAPI 入口
+- `backend/src/tools/amap_mcp.py:1-150` — 8 个高德 API 异步工具
+- `backend/src/tools/tavily_search.py:1-55` — Tavily 搜索适配层
+- `backend/src/tools/unsplash_images.py:1-55` — Unsplash 图片检索
+- `backend/src/tools/currency.py:1-50` — 汇率查询
+- `backend/src/agent/graph.py:9-15` — TOOL_REGISTRY 注册
 
 ---
 

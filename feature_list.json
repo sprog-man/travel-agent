@@ -9,7 +9,7 @@
     "test_passes": "subprocess.run exit code 0",
     "npm_build": "npm run build exits 0"
   },
-  "active_feature": "feat-003",
+  "active_feature": "feat-004",
   "all_completed": false,
   "features": [
     {
@@ -76,7 +76,7 @@
     {
       "id": "feat-004",
       "name": "M2: 高德 MCP 工具集成验证",
-      "status": "pending",
+      "status": "completed",
       "description": "实现高德 MCP 客户端适配层（amap_mcp.py），注册天气/POI/路线 8 个工具到 LangGraph Agent，验证工具调用通过。",
       "dependencies": ["feat-003"],
       "done_criteria": [
