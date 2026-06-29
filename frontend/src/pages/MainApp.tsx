@@ -12,11 +12,10 @@ interface LocationState {
 /**
  * MainApp — 主应用页面
  *
- * 规范：frontend-spec.md § 4.2
- * - 全屏地图 (z-0)
- * - TopNavBar (z-40)
- * - ChatPanel (z-50, 浮动右下角)
- * - LocationInfoCard (z-30, 地图点击后显示)
+ * 布局：左右分屏
+ * - 左侧：地图（60%）
+ * - 右侧：ChatPanel（40%）
+ * - TopNavBar 横跨整个页面
  */
 const MainApp: React.FC = () => {
   const location = useLocation();
@@ -51,25 +50,30 @@ const MainApp: React.FC = () => {
   }, [state?.destination]);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden">
-      {/* Map — 全屏背景 (z-0) */}
-      <div className="absolute inset-0 z-0">
-        <Map onLocationClick={handleLocationClick} />
-      </div>
-
-      {/* Top Navigation Bar (z-40) */}
+    <div className="flex flex-col w-screen h-screen overflow-hidden bg-[#0A0A0A]">
+      {/* Top Navigation Bar */}
       <TopNavBar />
 
-      {/* Location Info Card (z-30) */}
-      {selectedLocation && (
-        <LocationInfoCard
-          location={selectedLocation}
-          onClose={handleCloseCard}
-        />
-      )}
+      {/* Main Content - 左右分屏 */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Panel - Map (60%) */}
+        <div className="relative w-[60%] h-full">
+          <Map onLocationClick={handleLocationClick} />
 
-      {/* Chat Panel (z-50) */}
-      <ChatPanel />
+          {/* Location Info Card - 浮动在地图上 */}
+          {selectedLocation && (
+            <LocationInfoCard
+              location={selectedLocation}
+              onClose={handleCloseCard}
+            />
+          )}
+        </div>
+
+        {/* Right Panel - Chat (40%) */}
+        <div className="w-[40%] h-full border-l border-white/10">
+          <ChatPanel />
+        </div>
+      </div>
     </div>
   );
 };

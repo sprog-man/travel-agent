@@ -3,8 +3,48 @@
 ## Current State
 
 **Last Updated:** 2026-06-29
-**Active Feature:** feat-010 前端重构：3D 地球 → Leaflet 2D 地图 + frontend-spec.md 规范实现
+**Active Feature:** 布局优化 - 左右分屏（地图 60% + ChatPanel 40%）
 **Status:** ✅ COMPLETED
+
+---
+
+## Session: 2026-06-29 — 布局优化（左右分屏）
+
+### 问题
+用户反馈原浮动布局不合理：
+- ChatPanel 只有 380px 太小
+- 需要手动展开才能使用
+- 地图和对话无法同时查看
+- 不符合实际使用场景
+
+### 解决方案
+改为左右分屏布局（60% 地图 + 40% ChatPanel）
+
+#### 变更文件
+- [x] MainApp.tsx 布局重构
+  - `frontend/src/pages/MainApp.tsx:1-84` — 从浮动层改为 flex 左右分屏
+  - 左侧 60%: 地图容器（w-[60%]）
+  - 右侧 40%: ChatPanel（w-[40%], border-l）
+- [x] ChatPanel 简化
+  - `frontend/src/components/ChatPanel.tsx:1-120` — 移除折叠/展开逻辑
+  - 改为固定全高面板（h-full）
+  - 移除 Framer Motion 动画和状态管理
+
+### 布局优势
+1. 地图和对话同时可见，无需切换
+2. ChatPanel 有足够空间（40% 屏幕宽度）
+3. 60/40 黄金比例，视觉平衡
+4. 更符合用户实际使用习惯
+
+### 验证
+- [x] TypeScript 类型检查通过
+- [x] 运行时渲染正常
+- [x] 视觉效果截图：main-app-split-view.png
+
+### 证据
+- `frontend/src/pages/MainApp.tsx:49-73` — flex 分屏布局实现
+- `frontend/src/components/ChatPanel.tsx:23-120` — 固定全高面板
+- `main-app-split-view.png` — 60/40 分屏效果截图
 
 ---
 
