@@ -3,8 +3,50 @@
 ## Current State
 
 **Last Updated:** 2026-06-29
-**Active Feature:** 布局优化 - 左右分屏（地图 60% + ChatPanel 40%）
+**Active Feature:** 修复 Vite HMR 与 react-leaflet 冲突
 **Status:** ✅ COMPLETED
+
+---
+
+## Session: 2026-06-29 — 修复开发服务器黑屏问题
+
+### 问题
+用户反馈 localhost:3000 黑屏，控制台错误：
+- `Uncaught TypeError: render2 is not a function`
+- `Context.Consumer` 警告
+- `#root` 元素为空，整个 React 应用崩溃
+- 生产构建（端口 3001）正常
+
+### 根本原因
+Vite 的 Fast Refresh (HMR) 与 react-leaflet 4.2.1 有兼容性冲突
+
+### 解决方案
+#### 1. 禁用 Vite Fast Refresh
+- `frontend/vite.config.ts:6-9` — 在 react 插件中设置 `fastRefresh: false`
+
+#### 2. 添加 ErrorBoundary
+- `frontend/src/components/ErrorBoundary.tsx:1-63` — 新增错误边界组件
+- `frontend/src/pages/MainApp.tsx:7,63-78` — 用 ErrorBoundary 包裹 Map 组件
+
+#### 3. 修复 Map 组件
+- `frontend/src/components/Map.tsx:20-28` — 简化 ClickHandler，移除未使用的 map 变量
+- `frontend/src/components/Map.tsx:50` — 条件渲染 ClickHandler
+
+#### 4. 清理残留文件
+- 删除 `CustomCursor.tsx`, `GlobeHeatmap.tsx`, `GlobeDaylight.tsx`
+- 删除 `types/react-globe.gl.d.ts`
+
+### 验证
+- [x] 开发服务器 localhost:3000 正常渲染
+- [x] 地图、TopNav、ChatPanel 全部显示
+- [x] 左右分屏布局正常（60/40）
+- [x] TypeScript 类型检查通过
+
+### 证据
+- `frontend/vite.config.ts:6-9` — Fast Refresh 配置
+- `frontend/src/components/ErrorBoundary.tsx:1-63` — 错误边界实现
+- `frontend/src/pages/MainApp.tsx:63-78` — Map 组件包裹
+- `app-final-working.png` — 最终正常渲染截图
 
 ---
 

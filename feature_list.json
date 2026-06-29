@@ -31,22 +31,10 @@
     {
       "id": "feat-001",
       "name": "M1: 前端骨架 — React + Vite + 入场页 3D 场景",
-      "status": "completed",
-      "description": "搭建 React 18 + TypeScript + Vite 项目，实现入场页全屏 Three.js 场景（旋转地球 + 粒子星光 + 标题 + 开始探索按钮），3D 地球可拖拽旋转和缩放。",
+      "status": "deprecated",
+      "description": "已被 feat-010 替代。原计划使用 Three.js/react-globe.gl，现改为 Leaflet 2D 地图。",
       "dependencies": [],
-      "done_criteria": [
-        {"type": "file_exists", "path": "frontend/package.json"},
-        {"type": "file_exists", "path": "frontend/tsconfig.json"},
-        {"type": "file_exists", "path": "frontend/vite.config.ts"},
-        {"type": "file_exists", "path": "frontend/src/main.tsx"},
-        {"type": "file_exists", "path": "frontend/src/App.tsx"},
-        {"type": "file_exists", "path": "frontend/src/pages/Landing.tsx"},
-        {"type": "file_exists", "path": "frontend/src/components/Globe.tsx"},
-        {"type": "file_contains", "path": "frontend/package.json", "pattern": "react-globe.gl"},
-        {"type": "file_contains", "path": "frontend/package.json", "pattern": "@react-three/fiber"},
-        {"type": "file_contains", "path": "frontend/package.json", "pattern": "three"},
-        {"type": "test_passes", "command": "cd frontend && npx tsc --noEmit"}
-      ]
+      "done_criteria": []
     },
     {
       "id": "feat-002",

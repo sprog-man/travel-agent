@@ -4,6 +4,7 @@ import Map from '../components/Map';
 import TopNavBar from '../components/TopNavBar';
 import ChatPanel from '../components/ChatPanel';
 import LocationInfoCard from '../components/LocationInfoCard';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 interface LocationState {
   destination?: string;
@@ -58,7 +59,23 @@ const MainApp: React.FC = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel - Map (60%) */}
         <div className="relative w-[60%] h-full">
-          <Map onLocationClick={handleLocationClick} />
+          <ErrorBoundary
+            fallback={
+              <div className="flex items-center justify-center h-full bg-[#0A0A0A] text-white">
+                <div className="text-center">
+                  <p className="text-sm text-white/60">Map failed to load</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="mt-4 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20"
+                  >
+                    Reload
+                  </button>
+                </div>
+              </div>
+            }
+          >
+            <Map onLocationClick={handleLocationClick} />
+          </ErrorBoundary>
 
           {/* Location Info Card - 浮动在地图上 */}
           {selectedLocation && (

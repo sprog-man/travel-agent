@@ -26,6 +26,7 @@ function ClickHandler({ onClick }: { onClick?: (lat: number, lng: number) => voi
       onClick?.(lat, lng);
     },
   });
+
   return null;
 }
 
@@ -47,7 +48,7 @@ const Map: React.FC<MapProps> = ({ onLocationClick }) => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <ClickHandler onClick={onLocationClick} />
+      {onLocationClick && <ClickHandler onClick={onLocationClick} />}
     </MapContainer>
   );
 };

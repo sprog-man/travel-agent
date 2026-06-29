@@ -56,10 +56,12 @@ if [ -f "verify.py" ]; then
 
   if [ -n "$FRONTEND_FILES" ]; then
     # Check which frontend feature this belongs to
-    if echo "$FRONTEND_FILES" | grep -qE '(Main\.tsx|ChatPanel\.tsx|GlobeHeatmap|GlobeDaylight|useWebSocket|services/api\.ts)'; then
+    if echo "$FRONTEND_FILES" | grep -qE '(Map\.tsx|ErrorBoundary\.tsx)'; then
+      FEATURE_ID="feat-010"
+    elif echo "$FRONTEND_FILES" | grep -qE '(MainApp\.tsx|ChatPanel\.tsx|useWebSocket|services/api\.ts)'; then
       FEATURE_ID="feat-002"
-    elif echo "$FRONTEND_FILES" | grep -qE '(Landing\.tsx|Globe\.tsx|App\.tsx|main\.tsx|package\.json|tsconfig\.json|vite\.config|tailwind\.config|postcss\.config|index\.html|globals\.css|index\.css)'; then
-      FEATURE_ID="feat-001"
+    elif echo "$FRONTEND_FILES" | grep -qE '(Landing\.tsx|App\.tsx|main\.tsx|package\.json|tsconfig\.json|vite\.config|tailwind\.config|postcss\.config|index\.html|globals\.css|index\.css|TopNavBar\.tsx|LocationInfoCard\.tsx)'; then
+      FEATURE_ID="feat-010"
     fi
   fi
 
