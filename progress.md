@@ -237,6 +237,41 @@
 - `npx tsc --noEmit` ✅ 零错误
 - 视觉效果接近用户参考图片的神秘太空氛围
 
+### Phase 5: 交互层级实现（Raycasting + Marker）✅
+
+**实现内容**：
+
+1. **Raycasting 点击检测**
+   - useRaycaster hook — 鼠标点击 → Raycaster → 3D 坐标 → 经纬度转换
+   - InteractionController — 显示点击坐标信息 + 触发 Camera 飞行
+   - [useRaycaster.ts](frontend/src/hooks/useRaycaster.ts)
+   - [InteractionController.tsx](frontend/src/components/three/InteractionController.tsx)
+
+2. **Marker 系统**
+   - Marker 组件 — 经纬度 → 3D 坐标 + 发光球体 + 点击交互
+   - MarkerLayer — 管理多个标记 + 统一回调
+   - sampleMarkers — 全球 14 个主要城市（分区域配色）
+   - [Marker.tsx](frontend/src/components/three/Marker.tsx)
+   - [MarkerLayer.tsx](frontend/src/components/three/MarkerLayer.tsx)
+   - [markers.ts](frontend/src/data/markers.ts)
+
+3. **场景集成**
+   - MainScene 集成 InteractionController + MarkerLayer
+   - [MainScene.tsx](frontend/src/scenes/MainScene.tsx)
+
+### Evidence
+- agent-browser ✅ 点击地球显示经纬度（raycasting-clicked.png）
+- agent-browser ✅ 全球城市标记可见（markers-global-view.png）
+- Camera 自动飞向点击位置 ✅
+- `npx tsc --noEmit` ✅ 零错误
+
+**黑屏 Bug 修复**：
+- 问题：InteractionController 放在 Canvas 外部，useThree() 报错导致整个页面崩溃
+- 修复：简化为纯逻辑组件，移回 Canvas 内部
+- [InteractionController.tsx](frontend/src/components/three/InteractionController.tsx)
+- [MainScene.tsx](frontend/src/scenes/MainScene.tsx)
+- agent-browser ✅ 页面恢复正常（fixed-black-screen.png）
+
 ---
 
 ## Next Steps

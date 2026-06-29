@@ -3,6 +3,9 @@ import { Canvas } from '@react-three/fiber';
 import { Stars, PerspectiveCamera } from '@react-three/drei';
 import Globe from '../components/three/Globe';
 import CameraController from '../components/three/CameraController';
+import InteractionController from '../components/three/InteractionController';
+import MarkerLayer from '../components/three/MarkerLayer';
+import { sampleMarkers } from '../data/markers';
 
 /**
  * MainScene — 持续的 Three.js 场景
@@ -54,9 +57,16 @@ const MainScene: React.FC = () => {
         {/* Globe */}
         <Suspense fallback={null}>
           <Globe />
+          <MarkerLayer
+            markers={sampleMarkers}
+            onMarkerClick={(marker) => {
+              console.log('Marker clicked:', marker.name);
+            }}
+          />
         </Suspense>
 
-        {/* Camera Controller */}
+        {/* Interaction & Camera Controllers */}
+        <InteractionController />
         <CameraController />
       </Canvas>
 
