@@ -190,6 +190,29 @@
 | 交互能力 | 基础 | 可实现任意交互 |
 | 性能优化 | 黑盒 | 完全可控 |
 
+### Phase 3: 视觉修复 ✅
+
+**问题发现**：
+- 背景纯黑，缺少深度感
+- 光标不可见（cursor: none）
+- 星星太少，视觉单调
+
+**修复内容**：
+- 恢复默认光标 — index.css 改为 cursor: auto
+- 添加 Space 背景渐变 — indigo-950 → purple-950 → black
+- 增加星星数量 — 5000 → 8000
+- 提升星星饱和度 — 0 → 0.1
+- 增强光照 — ambientLight 0.3, directionalLight 1.2
+- 添加蓝色点光源 — 营造氛围
+- 标题添加 drop-shadow — 提升可读性
+- [MainScene.tsx](frontend/src/scenes/MainScene.tsx)
+- [index.css](frontend/src/index.css)
+
+### Evidence
+- agent-browser ✅ 背景有渐变，不再纯黑（r3f-visual-improved.png）
+- agent-browser ✅ 光标可见
+- agent-browser ✅ 星空更丰富
+
 ---
 
 ## Next Steps

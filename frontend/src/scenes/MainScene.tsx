@@ -19,6 +19,9 @@ import CameraController from '../components/three/CameraController';
 const MainScene: React.FC = () => {
   return (
     <div className="relative w-full h-full bg-black">
+      {/* Space Background Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-950 via-purple-950 to-black opacity-60" />
+
       {/* Three.js Canvas */}
       <Canvas className="w-full h-full">
         {/* Camera */}
@@ -31,18 +34,19 @@ const MainScene: React.FC = () => {
         />
 
         {/* Lights */}
-        <ambientLight intensity={0.2} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
+        <ambientLight intensity={0.3} />
+        <directionalLight position={[10, 10, 5]} intensity={1.2} />
+        <pointLight position={[-10, -10, -5]} intensity={0.5} color="#4488ff" />
 
         {/* Space Background */}
         <Stars
           radius={300}
           depth={50}
-          count={5000}
-          factor={4}
-          saturation={0}
+          count={8000}
+          factor={6}
+          saturation={0.1}
           fade
-          speed={0.5}
+          speed={0.3}
         />
 
         {/* Globe */}
@@ -56,7 +60,7 @@ const MainScene: React.FC = () => {
 
       {/* Floating UI Layer (DOM) */}
       <div className="absolute top-6 left-6 z-10">
-        <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+        <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2 drop-shadow-lg">
           <span className="text-2xl">🌍</span>
           AI Travel Explorer
         </h1>

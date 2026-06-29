@@ -47,10 +47,10 @@ body,
 /* Custom cursor — hide default */
 @media (pointer: fine) {
   body {
-    cursor: none !important;
+    cursor: auto !important; /* 恢复默认光标 */
   }
   a, button, [role="button"] {
-    cursor: none !important;
+    cursor: pointer !important;
   }
 }
 
