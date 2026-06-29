@@ -1,18 +1,21 @@
-import MainScene from './scenes/MainScene';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Landing from './pages/Landing';
+import MainApp from './pages/MainApp';
 
 /**
  * App — 应用入口
  *
- * 架构：
- * - 单一持续的 Three.js 场景
- * - 永不切换页面
- * - 所有交互在场景内完成
+ * 路由系统：/ (Landing) → /app (MainApp) → /itinerary/:id
  */
 function App() {
   return (
-    <div className="w-screen h-screen bg-black overflow-hidden">
-      <MainScene />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/app" element={<MainApp />} />
+        {/* <Route path="/itinerary/:id" element={<ItineraryPage />} /> */}
+      </Routes>
+    </BrowserRouter>
   );
 }
 

@@ -3,12 +3,94 @@
 ## Current State
 
 **Last Updated:** 2026-06-29
-**Active Feature:** 电影级地球视觉质量升级（全部完成）
-**Status:** ✅ COMPLETED — 所有 3 个阶段完成
+**Active Feature:** feat-010 前端重构：3D 地球 → Leaflet 2D 地图 + frontend-spec.md 规范实现
+**Status:** ✅ COMPLETED
 
 ---
 
-## Session: 2026-06-29 — 电影级地球视觉质量升级
+## Session: 2026-06-29 — 前端重构 + 设计系统实现
+
+### 背景
+用户明确要求放弃 3D 地球方案，改为 2D 地图前端。同时提供了完整的 `frontend-spec.md` 设计规范，要求按照规范重新实现前端。
+
+### 完成的工作
+
+#### 1. 架构重构
+- [x] 移除所有 Three.js 依赖
+  - `frontend/package.json` — 删除 three, @react-three/fiber, @react-three/drei, @react-three/postprocessing, react-globe.gl, postprocessing
+  - 删除 `frontend/src/components/Globe.tsx`
+  - 删除 `frontend/src/components/three/` 目录
+  - 删除 `frontend/src/scenes/` 目录
+- [x] 安装 Leaflet 2D 地图库
+  - `frontend/package.json` — 添加 leaflet@1.9.4, react-leaflet@5.0.0, @types/leaflet
+
+#### 2. 路由系统（frontend-spec.md § 14）
+- [x] 设置 BrowserRouter 路由
+  - `frontend/src/App.tsx` — 改为 BrowserRouter + Routes，定义 `/`, `/app`, `/itinerary/:id` 三个路由
+
+#### 3. 组件重构（frontend-spec.md § 4, § 5）
+- [x] **Landing.tsx** — 搜索中心入口页
+  - `frontend/src/pages/Landing.tsx:1-85` — 品牌标识 + 搜索框 + 热门目的地芯片
+  - 使用 `useNavigate` 导航到 `/app` 并传递 destination
+- [x] **TopNavBar.tsx** — 顶部导航栏
+  - `frontend/src/components/TopNavBar.tsx` — Fixed top, z-40, glass morphism 背景
+  - 高度 56px (h-14), 品牌标识 + 搜索框 + 设置图标
+- [x] **MainApp.tsx** — 主应用页面
+  - `frontend/src/pages/MainApp.tsx` — 全屏地图 (z-0) + TopNavBar (z-40) + ChatPanel (z-50) + LocationInfoCard (z-30)
+  - 地图点击回调 → 显示位置信息卡片
+- [x] **Map.tsx** — Leaflet 2D 地图
+  - `frontend/src/components/Map.tsx:1-56` — MapContainer + TileLayer + ClickHandler
+  - OpenStreetMap 瓦片图层
+- [x] **ChatPanel.tsx** — 浮动聊天面板
+  - `frontend/src/components/ChatPanel.tsx` — 折叠态：圆形按钮 (w-14 h-14), 展开态：面板 (w-[380px])
+  - Framer Motion spring 动画 (stiffness: 400, damping: 30)
+- [x] **LocationInfoCard.tsx** — 地图点击卡片
+  - `frontend/src/components/LocationInfoCard.tsx` — z-30, 宽度 320px, scale + fade 动画
+  - ESC 键或点击外部关闭
+
+#### 4. 设计系统（frontend-spec.md § 6, § 8）
+- [x] CSS 变量和设计 Token
+  - `frontend/src/index.css:10-25` — CSS 变量定义（--color-bg, --color-surface, --color-text-primary 等）
+- [x] 动画系统
+  - `frontend/src/index.css:47-92` — fadeIn, slideUp, fadeUp, pulse, typing, slideInRight 动画
+  - `frontend/src/index.css:96-102` — prefers-reduced-motion 支持
+- [x] 可复用组件类
+  - `frontend/src/index.css:108-158` — .glass-panel, .btn-primary, .chip
+
+#### 5. 验证
+- [x] TypeScript 类型检查通过
+  - `cd frontend && npx tsc --noEmit` — 无错误
+- [x] 构建验证通过
+  - `cd frontend && npm run build` — 构建成功，bundle 454KB
+- [x] 运行时验证
+  - Landing 页面渲染正常 (landing-redesign.png)
+  - MainApp 页面渲染正常 (main-app-fixed.png)
+  - ChatPanel 展开动画正常 (chat-expanded.png)
+
+### 证据
+- `frontend/src/App.tsx:1-20` — BrowserRouter 路由系统
+- `frontend/src/pages/Landing.tsx:1-85` — 搜索中心入口页
+- `frontend/src/components/TopNavBar.tsx:1-65` — 顶部导航栏
+- `frontend/src/pages/MainApp.tsx:1-60` — 主应用页面
+- `frontend/src/components/ChatPanel.tsx:1-145` — 浮动聊天面板
+- `frontend/src/components/LocationInfoCard.tsx:1-115` — 位置信息卡片
+- `frontend/src/components/Map.tsx:1-56` — Leaflet 2D 地图
+- `frontend/src/index.css:1-205` — 设计系统 CSS
+- `frontend/package.json` — Leaflet 依赖已安装，Three.js 依赖已移除
+- `landing-redesign.png` — Landing 页面截图
+- `main-app-fixed.png` — MainApp 页面截图
+- `chat-expanded.png` — 聊天面板展开截图
+
+### 下一步
+- [ ] 实现 WebSocket 通信（feat-005）
+- [ ] 反向地理编码（Nominatim API）
+- [ ] 后端 LangGraph Agent 集成
+
+---
+
+## Session: 2026-06-29 — 电影级地球视觉质量升级（已废弃）
+
+**注：** 此 session 的工作已被后续的前端重构替代，3D 地球方案已完全移除。
 
 ### 阶段 1 完成：PBR 材质升级
 - [x] 安装后期处理依赖

@@ -9,9 +9,25 @@
     "test_passes": "subprocess.run exit code 0",
     "npm_build": "npm run build exits 0"
   },
-  "active_feature": null,
+  "active_feature": "feat-010",
   "all_completed": false,
   "features": [
+    {
+      "id": "feat-010",
+      "name": "前端重构：3D 地球 → Leaflet 2D 地图",
+      "status": "completed",
+      "description": "移除 Three.js/react-globe.gl，使用 react-leaflet 实现 2D 交互式地图，保留点击触发攻略的核心交互逻辑。",
+      "dependencies": ["feat-002"],
+      "done_criteria": [
+        {"type": "file_exists", "path": "frontend/src/components/Map.tsx"},
+        {"type": "file_contains", "path": "frontend/package.json", "pattern": "react-leaflet"},
+        {"type": "file_contains", "path": "frontend/package.json", "pattern": "leaflet"},
+        {"type": "file_not_contains", "path": "frontend/package.json", "pattern": "react-globe.gl"},
+        {"type": "file_not_contains", "path": "frontend/package.json", "pattern": "@react-three/fiber"},
+        {"type": "file_contains", "path": "frontend/src/pages/MainApp.tsx", "pattern": "Map"},
+        {"type": "test_passes", "command": "cd frontend && npx tsc --noEmit"}
+      ]
+    },
     {
       "id": "feat-001",
       "name": "M1: 前端骨架 — React + Vite + 入场页 3D 场景",
@@ -39,10 +55,10 @@
       "description": "实现主界面布局：上方 60% 3D 地球（react-globe.gl），下方 40% 对话面板（ChatPanel），支持拖拽调整分割比例。入场页点击后平滑过渡到主界面。",
       "dependencies": ["feat-001"],
       "done_criteria": [
-        {"type": "file_exists", "path": "frontend/src/pages/Main.tsx"},
+        {"type": "file_exists", "path": "frontend/src/pages/MainApp.tsx"},
         {"type": "file_exists", "path": "frontend/src/components/ChatPanel.tsx"},
         {"type": "file_contains", "path": "frontend/src/App.tsx", "pattern": "Landing"},
-        {"type": "file_contains", "path": "frontend/src/App.tsx", "pattern": "Main"},
+        {"type": "file_contains", "path": "frontend/src/App.tsx", "pattern": "MainApp"},
         {"type": "file_exists", "path": "frontend/src/components/GlobeHeatmap.tsx"},
         {"type": "file_exists", "path": "frontend/src/components/GlobeDaylight.tsx"},
         {"type": "file_exists", "path": "frontend/src/hooks/useWebSocket.ts"},

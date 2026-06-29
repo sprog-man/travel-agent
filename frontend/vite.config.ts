@@ -13,17 +13,7 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
   },
-  optimizeDeps: {
-    include: ['three'],
-    exclude: ['three/webgpu'],
-    esbuildOptions: {
-      target: 'esnext',
-    },
-  },
   build: {
     target: 'esnext',
-    rollupOptions: {
-      external: ['three/webgpu'],
-    },
   },
 });

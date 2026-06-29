@@ -1,85 +1,88 @@
-import React from 'react';
-import Globe from '../components/Globe';
-
-interface LandingProps {
-  onExplore: () => void;
-}
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 /**
- * Landing Page — 极简单屏设计
+ * Landing Page — 搜索中心入口
  *
- * 设计理念：
- * - 全屏宇宙背景
- * - 中央：高质量 3D 地球缓慢自转（主角）
- * - 极简文案：标题 + 副标题 + 唯一按钮
- * - 没有导航栏、没有复杂 UI、没有滚动
- * - 参考：Apple 发布会、Google Earth 启动页
+ * 规范：frontend-spec.md § 4.1
+ * - 全屏深色背景
+ * - 居中搜索框 + 品牌标识
+ * - 热门目的地芯片
  */
-const Landing: React.FC<LandingProps> = ({ onExplore }) => {
+const Landing: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState('');
+
+  const popularDestinations = [
+    '东京', '巴黎', '纽约', '伦敦', '罗马', '悉尼'
+  ];
+
+  const handleSearch = (destination?: string) => {
+    const query = destination || searchValue;
+    if (query.trim()) {
+      navigate('/app', { state: { destination: query } });
+    }
+  };
+
   return (
-    <div className="relative w-full h-full bg-black overflow-hidden">
-      {/* Full-screen Globe — 主角 */}
-      <div className="absolute inset-0 z-0">
-        <Globe mode="landing" />
-      </div>
-
-      {/* Gradient overlays for depth */}
-      <div className="absolute inset-0 z-[1] pointer-events-none
-                      bg-gradient-to-b from-black/30 via-transparent to-black/40" />
-
-      {/* Content — 居中悬浮 */}
-      <div className="relative z-10 h-full flex flex-col items-center justify-center px-6">
-
-        {/* Main Title */}
-        <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black text-white mb-4
-                       tracking-tight leading-none text-center
+    <div className="relative w-full h-screen bg-[#0A0A0A] overflow-hidden flex flex-col items-center justify-center px-6">
+      {/* Hero Area */}
+      <div className="flex flex-col items-center">
+        {/* Brand Wordmark */}
+        <h1 className="text-4xl font-light tracking-wide text-white mb-2
                        animate-fadeUp"
-            style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}>
-          Explore the World
+            style={{ animationDelay: '0.3s', animationFillMode: 'backwards' }}>
+          TravelAI
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-lg sm:text-xl md:text-2xl text-gray-400 mb-12 text-center max-w-2xl
-                      tracking-wide animate-fadeUp"
+        {/* Tagline */}
+        <p className="text-sm text-white/50 mb-8
+                      animate-fadeUp"
            style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}>
-          Plan Every Journey with AI
+          Plan every journey with AI
         </p>
 
-        {/* CTA Button — 唯一的交互元素 */}
-        <button
-          onClick={onExplore}
-          className="group relative px-12 py-5 rounded-full
-                     text-white font-bold text-lg tracking-wide
-                     border-2 border-white/20 bg-white/5
-                     backdrop-blur-md
-                     hover:border-white/40 hover:bg-white/10
-                     transition-all duration-500
-                     hover:shadow-[0_0_60px_rgba(255,255,255,0.2)]
-                     active:scale-95
+        {/* Search Input */}
+        <input
+          type="text"
+          placeholder="Where do you want to go?"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+          className="w-[480px] max-w-[90vw] h-12
+                     bg-white/5 backdrop-blur-xl
+                     border border-white/10 rounded-full
+                     px-6 text-white placeholder-white/30 text-sm
+                     outline-none focus:border-white/30
+                     transition-colors
                      animate-fadeUp"
-          style={{ animationDelay: '0.6s', animationFillMode: 'backwards' }}
-          aria-label="Start exploring the world"
-        >
-          <span className="flex items-center gap-3">
-            Start Exploring
-            <svg
-              className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </span>
-        </button>
+          style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
+        />
 
-        {/* Subtle hint */}
-        <p className="absolute bottom-8 text-xs text-gray-600 tracking-[0.3em] uppercase
-                      animate-pulse">
-          AI-Powered Travel Platform
-        </p>
+        {/* Popular Destinations */}
+        <div className="flex flex-wrap gap-2 mt-6 justify-center
+                        animate-fadeUp"
+             style={{ animationDelay: '0.6s', animationFillMode: 'backwards' }}>
+          {popularDestinations.map((dest, idx) => (
+            <button
+              key={dest}
+              onClick={() => handleSearch(dest)}
+              className="chip hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer"
+              style={{
+                animationDelay: `${0.6 + idx * 0.05}s`,
+                animationFillMode: 'backwards'
+              }}
+            >
+              {dest}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* Footer */}
+      <p className="fixed bottom-8 text-xs text-white/25 tracking-[0.3em] uppercase">
+        AI-Powered Travel Platform
+      </p>
     </div>
   );
 };
