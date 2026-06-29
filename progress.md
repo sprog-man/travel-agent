@@ -272,6 +272,19 @@
 - [MainScene.tsx](frontend/src/scenes/MainScene.tsx)
 - agent-browser ✅ 页面恢复正常（fixed-black-screen.png）
 
+**OrbitControls 交互修复**：
+- 用户反馈：地球完全不能交互
+- 添加 OrbitControls：拖拽旋转 + 滚轮缩放
+- [MainScene.tsx](frontend/src/scenes/MainScene.tsx)
+- 配置：enablePan=false, minDistance=1.5, maxDistance=10, enableDamping=true
+
+**待改进（需大规模重构）**：
+- 视觉质量需提升至电影级别（参考：NASA/Google Earth/Interstellar）
+- 多层星空系统（20,000+ 星星 + 星团 + 银河 + 流星）
+- PBR 地球材质（MeshPhysicalMaterial + 8K 纹理）
+- 后期处理（Bloom + HDR + ACES Tone Mapping）
+- HDR 星云 + 太空尘埃 + 体积雾
+
 ---
 
 ## Next Steps

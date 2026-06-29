@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Stars, PerspectiveCamera } from '@react-three/drei';
+import { Stars, PerspectiveCamera, OrbitControls } from '@react-three/drei';
 import Globe from '../components/three/Globe';
 import CameraController from '../components/three/CameraController';
 import InteractionController from '../components/three/InteractionController';
@@ -68,6 +68,17 @@ const MainScene: React.FC = () => {
         {/* Interaction & Camera Controllers */}
         <InteractionController />
         <CameraController />
+
+        {/* OrbitControls for manual interaction */}
+        <OrbitControls
+          enablePan={false}
+          enableZoom={true}
+          minDistance={1.5}
+          maxDistance={10}
+          enableDamping={true}
+          dampingFactor={0.05}
+          rotateSpeed={0.5}
+        />
       </Canvas>
 
       {/* Floating UI Layer (DOM) */}
