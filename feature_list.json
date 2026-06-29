@@ -9,7 +9,7 @@
     "test_passes": "subprocess.run exit code 0",
     "npm_build": "npm run build exits 0"
   },
-  "active_feature": "feat-010",
+  "active_feature": "feat-003",
   "all_completed": false,
   "features": [
     {
@@ -56,7 +56,7 @@
     {
       "id": "feat-003",
       "name": "M2: 后端骨架 — FastAPI + LangGraph 图搭通",
-      "status": "pending",
+      "status": "completed",
       "description": "搭建 FastAPI 项目，定义 TravelState（LangGraph StateGraph），搭通意图提取节点和工具调度节点的基本图结构。",
       "dependencies": [],
       "done_criteria": [

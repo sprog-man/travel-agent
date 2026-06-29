@@ -3,8 +3,65 @@
 ## Current State
 
 **Last Updated:** 2026-06-29
-**Active Feature:** feat-010 (前端重构：2D Leaflet 地图)
+**Active Feature:** feat-003 (后端骨架)
 **Status:** ✅ COMPLETED
+
+---
+
+## Session: 2026-06-29 — feat-003 后端骨架搭建
+
+### 目标
+搭建 FastAPI + LangGraph 后端骨架，定义 TravelState（LangGraph StateGraph），搭通意图提取节点和行程规划节点的基本图结构。
+
+### 完成的工作
+
+#### 1. 项目结构
+- [x] `backend/pyproject.toml` — 项目元数据 + 依赖（fastapi, langgraph, pydantic, uvicorn 等）
+- [x] `backend/.env.example` — 环境变量模板（LLM_API_KEY, AMAP_KEY, TAVILY_API_KEY 等）
+- [x] `backend/src/__init__.py`, `backend/src/agent/__init__.py`, `backend/src/schemas/__init__.py` — 包初始化
+
+#### 2. 数据模型
+- [x] `backend/src/schemas/travel.py` — TravelIntent（Pydantic v2）+ Itinerary + ItineraryItem
+  - TravelIntent: destination, start_date, end_date, budget, num_travelers, preferences, summary
+  - BudgetLevel 枚举: budget / moderate / luxury
+
+#### 3. LangGraph State
+- [x] `backend/src/agent/state.py` — TravelState（TypedDict）
+  - user_input, destination, intent, itinerary, user_feedback, iteration_count, messages, tool_calls, error
+
+#### 4. LangGraph 主图
+- [x] `backend/src/agent/graph.py` — StateGraph 构建
+  - 图结构: START → intent_node → planning_node → review_node → END / 循环
+  - intent_node: 意图提取（占位实现，待集成 LLM）
+  - planning_node: 行程规划（占位实现）
+  - review_node: 反馈判断，iteration_count ≥ 5 时结束循环
+
+#### 5. FastAPI 入口
+- [x] `backend/src/main.py` — FastAPI 入口 + CORS + 路由
+  - `GET /api/health` — 健康检查
+  - `POST /api/guide` — 轻量级攻略查询
+  - `WS /api/plan` — WebSocket 行程规划（全双工流式）
+  - CORS 允许 localhost:3000 和 5173
+
+### 验证
+- [x] `python verify.py --feature feat-003` → 11/11 criteria passed
+- [x] `lint_check.sh` → PASS（Python 语法 + TS 类型检查）
+- [x] `done_check.sh` → 文档同步更新中
+
+### 证据
+- `backend/pyproject.toml:1-30` — 项目依赖配置
+- `backend/src/schemas/travel.py:1-70` — TravelIntent Pydantic 模型
+- `backend/src/agent/state.py:1-25` — TravelState TypedDict
+- `backend/src/agent/graph.py:1-60` — LangGraph StateGraph 主图
+- `backend/src/main.py:1-85` — FastAPI 入口
+
+---
+
+## 下一步计划
+
+- [ ] feat-004: 高德 MCP 工具集成验证
+- [ ] feat-005: 前后端联调 — WebSocket 通信打通
+- [ ] feat-006: 完整 Agent 工作流
 
 ---
 
