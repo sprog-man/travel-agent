@@ -7,6 +7,7 @@ import InteractionController from '../components/three/InteractionController';
 import MarkerLayer from '../components/three/MarkerLayer';
 import StarField from '../components/three/StarField';
 import DeepSpaceElements from '../components/three/DeepSpaceElements';
+import PostProcessing from '../components/three/PostProcessing';
 import { sampleMarkers } from '../data/markers';
 
 /**
@@ -30,7 +31,14 @@ const MainScene: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-radial from-purple-900/20 via-transparent to-transparent" />
 
       {/* Three.js Canvas */}
-      <Canvas className="w-full h-full">
+      <Canvas
+        className="w-full h-full"
+        gl={{
+          antialias: true,
+          toneMapping: 0, // Disable default tone mapping (use post-processing instead)
+          toneMappingExposure: 1.0,
+        }}
+      >
         {/* Camera - Cinematic 35mm focal length equivalent */}
         <PerspectiveCamera
           makeDefault
@@ -88,6 +96,9 @@ const MainScene: React.FC = () => {
           maxPolarAngle={Math.PI}
           minPolarAngle={0}
         />
+
+        {/* Post-processing Effects (Bloom + ACES Tone Mapping) */}
+        <PostProcessing />
       </Canvas>
 
       {/* Floating UI Layer (DOM) */}
