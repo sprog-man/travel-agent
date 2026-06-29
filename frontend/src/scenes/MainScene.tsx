@@ -18,9 +18,10 @@ import CameraController from '../components/three/CameraController';
  */
 const MainScene: React.FC = () => {
   return (
-    <div className="relative w-full h-full bg-black">
-      {/* Space Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-indigo-950 via-purple-950 to-black opacity-60" />
+    <div className="relative w-full h-full bg-[#0a0a1f]">
+      {/* Deep Space Background with Nebula Effect */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a3f] via-[#0f0f2e] to-[#050510]" />
+      <div className="absolute inset-0 bg-gradient-radial from-purple-900/20 via-transparent to-transparent" />
 
       {/* Three.js Canvas */}
       <Canvas className="w-full h-full">
@@ -34,19 +35,20 @@ const MainScene: React.FC = () => {
         />
 
         {/* Lights */}
-        <ambientLight intensity={0.3} />
-        <directionalLight position={[10, 10, 5]} intensity={1.2} />
-        <pointLight position={[-10, -10, -5]} intensity={0.5} color="#4488ff" />
+        <ambientLight intensity={0.2} />
+        <directionalLight position={[10, 10, 5]} intensity={1.5} color="#ffffff" />
+        <pointLight position={[-10, -10, -5]} intensity={0.8} color="#6688ff" />
+        <pointLight position={[5, -5, -10]} intensity={0.4} color="#ff88ff" />
 
-        {/* Space Background */}
+        {/* Dense Star Field */}
         <Stars
           radius={300}
-          depth={50}
-          count={8000}
-          factor={6}
-          saturation={0.1}
+          depth={60}
+          count={15000}
+          factor={4}
+          saturation={0.3}
           fade
-          speed={0.3}
+          speed={0.5}
         />
 
         {/* Globe */}

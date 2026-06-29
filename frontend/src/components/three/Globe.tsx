@@ -68,13 +68,24 @@ const Globe: React.FC = () => {
         />
       </mesh>
 
-      {/* Atmosphere Glow */}
-      <mesh ref={atmosphereRef} scale={1.15}>
+      {/* Atmosphere Glow - Inner Layer */}
+      <mesh scale={1.12}>
+        <sphereGeometry args={[1, 64, 64]} />
+        <meshBasicMaterial
+          color={0x88bbff}
+          transparent
+          opacity={0.4}
+          side={THREE.BackSide}
+        />
+      </mesh>
+
+      {/* Atmosphere Glow - Outer Layer */}
+      <mesh ref={atmosphereRef} scale={1.2}>
         <sphereGeometry args={[1, 64, 64]} />
         <meshBasicMaterial
           color={0x4488ff}
           transparent
-          opacity={0.2}
+          opacity={0.25}
           side={THREE.BackSide}
         />
       </mesh>
