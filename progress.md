@@ -3,12 +3,37 @@
 ## Current State
 
 **Last Updated:** 2026-06-29
-**Active Feature:** Code Review 修复
-**Status:** ✅ Code Review 修复完成
+**Active Feature:** feat-005 Code Review 修复
+**Status:** ✅ COMPLETED
 
 ---
 
-## Session: 2026-06-29 — Code Review 修复（4 Critical + 7 Major）
+## Session: 2026-06-29 — feat-005 前后端联调 WebSocket 通信
+
+### 目标
+将前端 useWebSocket hook 接入 ChatPanel，地图点击触发 WebSocket 连接和行程规划。
+
+### 完成的工作
+
+#### 1. ChatPanel WebSocket 接入
+- `frontend/src/components/ChatPanel.tsx` — 接收 messages/sendMessage/connectionStatus props
+- 显示用户消息、Agent 消息、工具调用状态、行程卡片
+- 连接状态指示器（connected/connecting/reconnecting/disconnected）
+- 消息自动滚动到底部
+
+#### 2. MainApp 联调
+- `frontend/src/pages/MainApp.tsx` — 使用 useWebSocket hook
+- 地图点击自动发送规划请求到 /api/plan WebSocket
+- 从 Landing 传来目的地时自动触发规划
+
+### 验证
+- [x] verify.py --feature feat-005 → 7/7 criteria passed
+- [x] TypeScript 类型检查通过
+- [x] lint_check.sh → PASS
+
+---
+
+## 下一步计划
 
 ### 问题
 Code Reviewer 发现 feat-003 + feat-004 后端代码存在 4 个 Critical 和 7 个 Major 问题。

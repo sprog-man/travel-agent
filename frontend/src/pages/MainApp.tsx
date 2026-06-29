@@ -5,22 +5,17 @@ import TopNavBar from '../components/TopNavBar';
 import ChatPanel from '../components/ChatPanel';
 import LocationInfoCard from '../components/LocationInfoCard';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { useWebSocket } from '../hooks/useWebSocket';
 
 interface LocationState {
   destination?: string;
 }
 
-/**
- * MainApp — 主应用页面
- *
- * 布局：左右分屏
- * - 左侧：地图（60%）
- * - 右侧：ChatPanel（40%）
- * - TopNavBar 横跨整个页面
- */
 const MainApp: React.FC = () => {
   const location = useLocation();
   const state = location.state as LocationState;
+
+  const { messages, sendMessage, connectionStatus, connect } = useWebSocket();
 
   const [selectedLocation, setSelectedLocation] = useState<{
     lat: number;
@@ -29,33 +24,38 @@ const MainApp: React.FC = () => {
   } | null>(null);
 
   const handleLocationClick = (lat: number, lng: number) => {
-    console.log(`Map clicked: lat=${lat.toFixed(4)}, lng=${lng.toFixed(4)}`);
+    const name = `Location (${lat.toFixed(2)}, ${lng.toFixed(2)})`;
+    setSelectedLocation({ lat, lng, name });
 
-    // 显示位置信息卡片
-    setSelectedLocation({ lat, lng, name: `Location (${lat.toFixed(2)}, ${lng.toFixed(2)})` });
+    const msg = `我想去坐标 (${lat.toFixed(4)}, ${lng.toFixed(4)}) 旅行，请帮我规划行程`;
 
-    // TODO: 反向地理编码获取地点名称
-    // TODO: 触发 AI 对话
+    if (connectionStatus === 'disconnected') {
+      // connect 的第二个参数会在连接建立后自动发送
+      connect(String(lat), msg);
+    } else {
+      sendMessage(msg);
+    }
   };
 
   const handleCloseCard = () => {
     setSelectedLocation(null);
   };
 
-  // 如果从 Landing 传来目的地，自动飞往该位置
   React.useEffect(() => {
     if (state?.destination) {
-      console.log('Navigate to destination:', state.destination);
-      // TODO: 地理编码 + 地图飞往
+      const msg = `我想去${state.destination}旅行，请帮我规划行程`;
+      if (connectionStatus === 'disconnected') {
+        connect(state.destination, msg);
+      } else {
+        sendMessage(msg);
+      }
     }
-  }, [state?.destination]);
+  }, [state?.destination, connectionStatus, connect, sendMessage]);
 
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden bg-[#0A0A0A]">
-      {/* Top Navigation Bar */}
       <TopNavBar />
 
-      {/* Main Content - 左右分屏 */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel - Map (60%) */}
         <div className="relative w-[60%] h-full">
@@ -77,7 +77,6 @@ const MainApp: React.FC = () => {
             <Map onLocationClick={handleLocationClick} />
           </ErrorBoundary>
 
-          {/* Location Info Card - 浮动在地图上 */}
           {selectedLocation && (
             <LocationInfoCard
               location={selectedLocation}
@@ -88,7 +87,11 @@ const MainApp: React.FC = () => {
 
         {/* Right Panel - Chat (40%) */}
         <div className="w-[40%] h-full border-l border-white/10">
-          <ChatPanel />
+          <ChatPanel
+            messages={messages}
+            sendMessage={sendMessage}
+            connectionStatus={connectionStatus}
+          />
         </div>
       </div>
     </div>

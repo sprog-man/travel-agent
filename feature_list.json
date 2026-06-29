@@ -39,19 +39,10 @@
     {
       "id": "feat-002",
       "name": "M1: 主界面 — 上下分屏 6:4（地球 + 对话面板）",
-      "status": "completed",
-      "description": "实现主界面布局：上方 60% 3D 地球（react-globe.gl），下方 40% 对话面板（ChatPanel），支持拖拽调整分割比例。入场页点击后平滑过渡到主界面。",
+      "status": "deprecated",
+      "description": "已被 feat-010 替代。原计划使用 3D 地球，现改为 Leaflet 2D 地图。",
       "dependencies": ["feat-001"],
-      "done_criteria": [
-        {"type": "file_exists", "path": "frontend/src/pages/MainApp.tsx"},
-        {"type": "file_exists", "path": "frontend/src/components/ChatPanel.tsx"},
-        {"type": "file_contains", "path": "frontend/src/App.tsx", "pattern": "Landing"},
-        {"type": "file_contains", "path": "frontend/src/App.tsx", "pattern": "MainApp"},
-        {"type": "file_exists", "path": "frontend/src/components/GlobeHeatmap.tsx"},
-        {"type": "file_exists", "path": "frontend/src/components/GlobeDaylight.tsx"},
-        {"type": "file_exists", "path": "frontend/src/hooks/useWebSocket.ts"},
-        {"type": "file_exists", "path": "frontend/src/services/api.ts"}
-      ]
+      "done_criteria": []
     },
     {
       "id": "feat-003",
@@ -92,7 +83,7 @@
     {
       "id": "feat-005",
       "name": "M3: 前后端联调 — WebSocket 通信打通",
-      "status": "pending",
+      "status": "completed",
       "description": "实现 WebSocket 消息协议（/api/plan），前端 useWebSocket hook 连接后端，点击地球 → 获取攻略 → 对话面板流式展示。",
       "dependencies": ["feat-002", "feat-003"],
       "done_criteria": [

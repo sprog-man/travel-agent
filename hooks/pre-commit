@@ -59,7 +59,7 @@ if [ -f "verify.py" ]; then
     if echo "$FRONTEND_FILES" | grep -qE '(Map\.tsx|ErrorBoundary\.tsx)'; then
       FEATURE_ID="feat-010"
     elif echo "$FRONTEND_FILES" | grep -qE '(MainApp\.tsx|ChatPanel\.tsx|useWebSocket|services/api\.ts)'; then
-      FEATURE_ID="feat-002"
+      FEATURE_ID="feat-005"
     elif echo "$FRONTEND_FILES" | grep -qE '(Landing\.tsx|App\.tsx|main\.tsx|package\.json|tsconfig\.json|vite\.config|tailwind\.config|postcss\.config|index\.html|globals\.css|index\.css|TopNavBar\.tsx|LocationInfoCard\.tsx)'; then
       FEATURE_ID="feat-010"
     fi

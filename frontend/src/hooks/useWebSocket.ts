@@ -17,7 +17,7 @@ interface UseWebSocketReturn {
   messages: ChatMessage[];
   sendMessage: (text: string) => void;
   connectionStatus: ConnectionStatus;
-  connect: (destination: string) => void;
+  connect: (destination: string, initialMessage?: string) => void;
   disconnect: () => void;
 }
 
@@ -31,9 +31,11 @@ interface UseWebSocketOptions {
   maxRetryDelay?: number;
 }
 
-/** 生成唯一消息 ID */
+let msgCounter = 0;
+
+/** 生成唯一消息 ID（使用计数器避免同一毫秒重复） */
 function generateMessageId(): string {
-  return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return `msg-${Date.now()}-${++msgCounter}`;
 }
 
 /**
@@ -57,6 +59,10 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const destinationRef = useRef('');
   const currentAssistantIdRef = useRef<string | null>(null);
+  const maxRetriesRef = useRef(maxRetries);
+  const pendingMessageRef = useRef<string | null>(null);
+
+  maxRetriesRef.current = maxRetries;
 
   /** 清除重连定时器 */
   const clearRetryTimer = useCallback(() => {
@@ -80,7 +86,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
       case 'agent_message': {
         const assistantId = currentAssistantIdRef.current;
         if (assistantId) {
-          // 追加到当前 assistant 消息
           setMessages((prev) =>
             prev.map((msg) =>
               msg.id === assistantId
@@ -89,7 +94,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
             )
           );
         } else {
-          // 创建新的 assistant 消息
           const newId = generateMessageId();
           currentAssistantIdRef.current = newId;
           setMessages((prev) => [
@@ -110,8 +114,21 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
           toolName: parsed.toolName,
           status: 'running' as const,
         };
-        const assistantId = currentAssistantIdRef.current;
-        if (assistantId) {
+        let assistantId = currentAssistantIdRef.current;
+        if (!assistantId) {
+          assistantId = generateMessageId();
+          currentAssistantIdRef.current = assistantId;
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: assistantId!,
+              role: 'assistant',
+              content: '',
+              timestamp: Date.now(),
+              toolCalls: [toolInfo],
+            },
+          ]);
+        } else {
           setMessages((prev) =>
             prev.map((msg) =>
               msg.id === assistantId
@@ -153,14 +170,32 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
       }
 
       default:
+        console.warn('[useWebSocket] Unknown message type:', (parsed as { type: string }).type);
         break;
+    }
+  }, []);
+
+  /** 发送待定消息（连接建立后自动发送） */
+  const flushPendingMessage = useCallback(() => {
+    if (pendingMessageRef.current && wsRef.current?.readyState === WebSocket.OPEN) {
+      const msg = pendingMessageRef.current;
+      pendingMessageRef.current = null;
+
+      const userMessage: ChatMessage = {
+        id: generateMessageId(),
+        role: 'user',
+        content: msg,
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, userMessage]);
+      currentAssistantIdRef.current = null;
+      wsRef.current.send(JSON.stringify({ message: msg }));
     }
   }, []);
 
   /** 建立 WebSocket 连接 */
   const connect = useCallback(
-    (destination: string) => {
-      // 关闭现有连接
+    (destination: string, initialMessage?: string) => {
       if (wsRef.current) {
         wsRef.current.close();
         wsRef.current = null;
@@ -172,12 +207,17 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
       currentAssistantIdRef.current = null;
       setConnectionStatus('connecting');
 
+      if (initialMessage) {
+        pendingMessageRef.current = initialMessage;
+      }
+
       const ws = createPlanWebSocket(destination);
       wsRef.current = ws;
 
       ws.onopen = () => {
         setConnectionStatus('connected');
         retryCountRef.current = 0;
+        flushPendingMessage();
       };
 
       ws.onmessage = handleMessage;
@@ -190,14 +230,12 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
         wsRef.current = null;
         currentAssistantIdRef.current = null;
 
-        // 正常关闭
         if (event.code === 1000) {
           setConnectionStatus('disconnected');
           return;
         }
 
-        // 需要重连
-        if (retryCountRef.current < maxRetries) {
+        if (retryCountRef.current < maxRetriesRef.current) {
           setConnectionStatus('reconnecting');
           const delay = Math.min(
             initialRetryDelay * Math.pow(2, retryCountRef.current),
@@ -213,13 +251,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
         }
       };
     },
-    [
-      clearRetryTimer,
-      handleMessage,
-      maxRetries,
-      initialRetryDelay,
-      maxRetryDelay,
-    ]
+    [clearRetryTimer, handleMessage, flushPendingMessage, initialRetryDelay, maxRetryDelay]
   );
 
   /** 发送用户消息 */
@@ -258,7 +290,6 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
     setConnectionStatus('disconnected');
   }, [clearRetryTimer]);
 
-  // 卸载时清理
   useEffect(() => {
     return () => {
       clearRetryTimer();
