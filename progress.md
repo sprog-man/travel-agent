@@ -127,6 +127,71 @@
 
 ---
 
+---
+
+## Session: 2026-06-29 — 完全重写：react-three-fiber 架构
+
+### 背景
+- 用户要求完全重写，达到 Google Earth 级别
+- 新设计要求：单一 Three.js 场景、Camera 层级控制、交互层级、AI 上下文感知
+- 核心理念：Explore First, AI Second, Planning Third
+
+### Phase 1: 基础架构 ✅
+
+**依赖升级**：
+- 安装 `@react-three/drei@^9.114.3`（兼容 React 18）
+- 安装 `framer-motion`
+- 安装 `lucide-react`
+
+**Scene 架构**：
+- 创建 `MainScene.tsx` — 单一持续场景（Space + Stars + Globe）
+- 使用 `@react-three/fiber` Canvas
+- 使用 `@react-three/drei` Stars 组件
+- [MainScene.tsx](frontend/src/scenes/MainScene.tsx)
+
+**Globe 重写**：
+- 完全重写 `Globe.tsx` — 基于 react-three-fiber
+- Earth 纹理（earth-blue-marble.jpg）
+- Bump Map（earth-topology.png）
+- Clouds 层（earth-water.png，透明度 0.4）
+- Atmosphere 辉光（BackSide material）
+- 自动旋转动画（useFrame）
+- [Globe.tsx](frontend/src/components/three/Globe.tsx)
+
+### Phase 2: Camera 控制系统 ✅
+
+**useCameraController Hook**：
+- Landing Orbit — 自动环绕模式
+- Fly To — 飞向目标（Ease Out Cubic）
+- Focus On — 聚焦特定点
+- Reset — 返回初始位置
+- Smooth Lerp — 位置插值
+- Smooth Slerp — 旋转插值
+- [useCameraController.ts](frontend/src/hooks/useCameraController.ts)
+
+**CameraController 组件**：
+- 纯逻辑组件（无 UI）
+- 启动时自动进入 Landing Orbit
+- [CameraController.tsx](frontend/src/components/three/CameraController.tsx)
+
+### Evidence
+- `npx tsc --noEmit` ✅ 零错误
+- `npm run build` ✅ 构建成功（3.77s，624 modules）
+- agent-browser ✅ Globe 正确渲染（r3f-globe-v1.png）
+- agent-browser ✅ Camera 环绕动画正常（r3f-camera-orbit.png）
+
+### 技术对比
+
+| 维度 | 旧实现（react-globe.gl） | 新实现（r3f） |
+|------|--------------------------|---------------|
+| 架构 | 高度封装库 | 底层 Three.js 控制 |
+| Camera 控制 | 简单 autoRotate | 完整层级系统（Orbit/Fly/Focus） |
+| 可扩展性 | 受限 | 完全自由 |
+| 交互能力 | 基础 | 可实现任意交互 |
+| 性能优化 | 黑盒 | 完全可控 |
+
+---
+
 ## Next Steps
 
 1. Evaluator agent 独立验收（Playwright MCP）
