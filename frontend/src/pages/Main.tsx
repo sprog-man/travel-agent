@@ -1,163 +1,58 @@
-/**
- * Main.tsx — 主界面
- *
- * 上下分屏布局：上方 60% 3D 地球，下方 40% 对话面板。
- * 可拖拽分割线调整比例（拖拽时显示半透明遮罩防止 iframe 抢焦点）。
- */
-
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React from 'react';
 import Globe from '../components/Globe';
 import ChatPanel from '../components/ChatPanel';
-import { useWebSocket } from '../hooks/useWebSocket';
 
-/* ─── Constants ─── */
-
-const MIN_RATIO = 0.2; // 地球区域最小占比
-const MAX_RATIO = 0.85; // 地球区域最大占比
-const DEFAULT_RATIO = 0.6; // 默认 6:4 分屏
-
-/* ─── Component ─── */
-
+/**
+ * Main Page — 地球为核心的探索界面
+ *
+ * 设计理念：
+ * - 地球占据 70% 视觉面积（主角）
+ * - ChatPanel 是 Glassmorphism 浮动面板（辅助）
+ * - 不是分屏布局，而是层叠布局
+ * - 参考：Google Earth、Apple Maps、Linear
+ */
 const Main: React.FC = () => {
-  const [splitRatio, setSplitRatio] = useState(DEFAULT_RATIO);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const dragStartYRef = useRef(0);
-  const dragStartRatioRef = useRef(DEFAULT_RATIO);
-
-  const { messages, sendMessage, connectionStatus } = useWebSocket({
-    maxRetries: 5,
-    initialRetryDelay: 1000,
-    maxRetryDelay: 30000,
-  });
-
-  /* ─── 拖拽分割线 ─── */
-
-  const handleDragStart = useCallback(
-    (e: React.MouseEvent | React.TouchEvent) => {
-      e.preventDefault();
-      setIsDragging(true);
-      dragStartRatioRef.current = splitRatio;
-
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      dragStartYRef.current = clientY;
-    },
-    [splitRatio]
-  );
-
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const container = containerRef.current;
-    if (!container) return;
-
-    const containerHeight = container.clientHeight;
-
-    const handleMove = (e: MouseEvent | TouchEvent) => {
-      const clientY = 'touches' in e ? e.touches[0].clientY : (e as MouseEvent).clientY;
-      const deltaY = clientY - dragStartYRef.current;
-      const deltaRatio = deltaY / containerHeight;
-      const newRatio = Math.max(MIN_RATIO, Math.min(MAX_RATIO, dragStartRatioRef.current + deltaRatio));
-      setSplitRatio(newRatio);
-    };
-
-    const handleEnd = () => {
-      setIsDragging(false);
-    };
-
-    window.addEventListener('mousemove', handleMove, { passive: true });
-    window.addEventListener('mouseup', handleEnd);
-    window.addEventListener('touchmove', handleMove, { passive: true });
-    window.addEventListener('touchend', handleEnd);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMove);
-      window.removeEventListener('mouseup', handleEnd);
-      window.removeEventListener('touchmove', handleMove);
-      window.removeEventListener('touchend', handleEnd);
-    };
-  }, [isDragging]);
-
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full h-full bg-[#0a0a0a] overflow-hidden select-none"
-    >
-      {/* 半透明遮罩 — 拖拽时防止 iframe 抢焦点 */}
-      {isDragging && (
-        <div
-          className="absolute inset-0 z-50 bg-transparent"
-          aria-hidden="true"
-          style={{ cursor: 'row-resize' }}
-        />
-      )}
-
-      {/* 上方：3D 地球区域 */}
-      <div
-        className="w-full overflow-hidden"
-        style={{ height: `${splitRatio * 100}%` }}
-        role="region"
-        aria-label="3D 地球探索区域"
-      >
-        <Globe className="w-full h-full" />
+    <div className="relative w-full h-full bg-black overflow-hidden">
+      {/* Globe — 全屏背景（主角） */}
+      <div className="absolute inset-0 z-0">
+        <Globe mode="main" />
       </div>
 
-      {/* 可拖拽分割线 */}
-      <div
-        className="group relative z-40 w-full h-1.5 cursor-row-resize flex items-center justify-center"
-        onMouseDown={handleDragStart}
-        onTouchStart={handleDragStart}
-        role="separator"
-        aria-valuenow={Math.round(splitRatio * 100)}
-        aria-valuemin={Math.round(MIN_RATIO * 100)}
-        aria-valuemax={Math.round(MAX_RATIO * 100)}
-        aria-label="拖拽调整地球和对话面板比例"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowUp') {
-            setSplitRatio((r) => Math.min(MAX_RATIO, r + 0.02));
-          } else if (e.key === 'ArrowDown') {
-            setSplitRatio((r) => Math.max(MIN_RATIO, r - 0.02));
-          }
-        }}
-      >
-        {/* 分割线视觉表现 */}
-        <div
-          className={`w-full h-px transition-colors duration-200 ${
-            isDragging ? 'bg-cyan-400/60' : 'bg-white/20 group-hover:bg-cyan-400/40'
-          }`}
-        />
-        {/* 中央抓手图标 */}
-        <div
-          className={`absolute w-8 h-5 rounded-full border flex items-center justify-center
-                      transition-all duration-200 ${
-                        isDragging
-                          ? 'bg-cyan-400/20 border-cyan-400/50 scale-110'
-                          : 'bg-white/10 border-white/20 group-hover:bg-white/20 group-hover:border-white/30'
-                      }`}
-          aria-hidden="true"
+      {/* Gradient overlay for depth */}
+      <div className="absolute inset-0 z-[1] pointer-events-none
+                      bg-gradient-to-b from-black/20 via-transparent to-black/30" />
+
+      {/* ChatPanel — Glassmorphism 浮动面板（右下角） */}
+      <div className="absolute bottom-6 right-6 z-10 w-[420px] max-w-[90vw]">
+        <ChatPanel />
+      </div>
+
+      {/* Top-left: Logo / Title */}
+      <div className="absolute top-6 left-6 z-10">
+        <h1 className="text-xl font-bold text-white tracking-tight
+                       flex items-center gap-2">
+          <span className="text-2xl">🌍</span>
+          AI Travel Explorer
+        </h1>
+      </div>
+
+      {/* Top-right: Settings / Help (placeholder) */}
+      <div className="absolute top-6 right-6 z-10 flex items-center gap-3">
+        <button
+          className="w-10 h-10 rounded-full
+                     border border-white/20 bg-white/5 backdrop-blur-md
+                     hover:bg-white/10 hover:border-white/30
+                     transition-all duration-300
+                     flex items-center justify-center
+                     text-white/70 hover:text-white"
+          aria-label="Settings"
         >
-          <div className="flex gap-0.5">
-            <div className="w-0.5 h-2 rounded-full bg-current opacity-40" />
-            <div className="w-0.5 h-2 rounded-full bg-current opacity-40" />
-            <div className="w-0.5 h-2 rounded-full bg-current opacity-40" />
-          </div>
-        </div>
-      </div>
-
-      {/* 下方：对话面板 */}
-      <div
-        className="w-full overflow-hidden"
-        style={{ height: `${(1 - splitRatio) * 100}%` }}
-        role="region"
-        aria-label="对话面板区域"
-      >
-        <ChatPanel
-          messages={messages}
-          onSend={sendMessage}
-          connectionStatus={connectionStatus}
-        />
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
       </div>
     </div>
   );

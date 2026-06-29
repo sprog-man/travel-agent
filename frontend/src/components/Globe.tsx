@@ -52,9 +52,10 @@ function disposeThreeObject(obj: THREE.Object3D) {
 
 interface GlobeProps {
   className?: string;
+  mode?: 'landing' | 'main';
 }
 
-const Globe: React.FC<GlobeProps> = ({ className = '' }) => {
+const Globe: React.FC<GlobeProps> = ({ className = '', mode = 'main' }) => {
   const globeRef = useRef<HTMLDivElement>(null);
   const globeInstanceRef = useRef<Record<string, unknown> | null>(null);
   const [GlobeGl, setGlobeGl] = useState<typeof import('react-globe.gl')['default'] | null>(null);
@@ -128,8 +129,8 @@ const Globe: React.FC<GlobeProps> = ({ className = '' }) => {
               const ctrl = (globe as { controls?: () => GlobeControls }).controls?.();
               if (ctrl) {
                 ctrl.autoRotate = true;
-                ctrl.autoRotateSpeed = 0.3;
-                ctrl.enableZoom = false;
+                ctrl.autoRotateSpeed = mode === 'landing' ? 0.5 : 0.3;
+                ctrl.enableZoom = mode === 'main';
               }
             }
           }}
@@ -138,11 +139,11 @@ const Globe: React.FC<GlobeProps> = ({ className = '' }) => {
           backgroundColor="rgba(0, 0, 0, 0)"
           backgroundImageUrl=""
           showAtmosphere
-          atmosphereColor="#22d3ee"
-          atmosphereAltitude={0.18}
+          atmosphereColor={mode === 'landing' ? '#ffffff' : '#22d3ee'}
+          atmosphereAltitude={mode === 'landing' ? 0.25 : 0.18}
           showPoints
           showLabels={false}
-          enablePointerInteraction={false}
+          enablePointerInteraction={mode === 'main'}
           globeImageUrl="https://unpkg.com/three-globe/example/img/earth-night.jpg"
           bumpImageUrl="https://unpkg.com/three-globe/example/img/earth-topology.png"
           pointsData={particles}

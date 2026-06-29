@@ -67,6 +67,66 @@
 
 ---
 
+---
+
+## Session: 2026-06-29 — 推倒重来：Earth-first 设计
+
+### 背景
+- 上一个会话实现的 ActiveTheory 风格重设计**违背了 SPEC.md 核心理念**
+- 问题：三段式滚动（Hero/Features/CTA）、地球只是装饰、上下分屏 6:4
+- **根本错误**：没有理解 "以 3D 地球为核心交互（Earth-first Interaction）"
+
+### Completed
+- [x] 推倒重来 — 回滚到 9bb75e6（Three.js 修复后）
+- [x] 重写 Landing.tsx — 极简单屏设计
+  - 全屏宇宙背景 + 中央地球缓慢自转
+  - 标题：Explore the World / Plan Every Journey with AI
+  - 唯一按钮：Start Exploring
+  - 参考：Apple 发布会、Google Earth 启动页
+  - [Landing.tsx](frontend/src/pages/Landing.tsx)
+- [x] 重写 App.tsx — Camera 飞行动画（不切换页面）
+  - Landing scale(2.5) + opacity 0（2.5秒）
+  - Main 逐渐浮现（1.5秒 delay）
+  - 模拟 Camera 飞向地球的视觉效果
+  - [App.tsx](frontend/src/App.tsx)
+- [x] 重写 Main.tsx — 地球为主（70%）+ Glassmorphism 浮动面板
+  - 地球全屏背景（主角）
+  - ChatPanel 右下角浮动（420px 宽）
+  - Logo 左上角 / Settings 右上角
+  - 删除上下分屏布局
+  - [Main.tsx](frontend/src/pages/Main.tsx)
+- [x] 重写 ChatPanel.tsx — Glassmorphism 半透明面板
+  - backdrop-blur-xl + bg-black/40
+  - 极简输入框 + 发送按钮
+  - 删除复杂消息渲染（简化为 placeholder）
+  - [ChatPanel.tsx](frontend/src/components/ChatPanel.tsx)
+- [x] 更新 Globe.tsx — mode prop（landing/main）
+  - Landing 模式：白色大气层 + autoRotateSpeed 0.5 + 禁用交互
+  - Main 模式：青色大气层 + autoRotateSpeed 0.3 + 可交互
+  - [Globe.tsx](frontend/src/components/Globe.tsx)
+- [x] 更新 index.css — fadeUp 动画 + custom-scrollbar
+  - 删除 scroll-reveal/stagger 样式
+  - [index.css](frontend/src/index.css)
+
+### Evidence
+- `npx tsc --noEmit` ✅ 零错误
+- `npm run build` ✅ 构建成功（3.75s，463 modules）
+- agent-browser ✅ Landing 页面正确渲染（Explore the World + 按钮）
+- agent-browser ✅ Main 页面正确渲染（地球 + ChatPanel 浮动面板）
+- 过渡动画 ✅ 点击按钮后 Camera 推进效果正常
+
+### 设计对比
+
+| 维度 | 错误设计（已废弃） | 正确设计（当前） |
+|------|-------------------|------------------|
+| Landing | 三段式滚动 | 极简单屏 |
+| 地球角色 | 装饰背景 | 核心主角（70%） |
+| 布局 | 上下分屏 6:4 | 层叠布局（地球全屏 + 浮动面板） |
+| ChatPanel | 占据 40% 空间 | Glassmorphism 浮动面板 |
+| 过渡 | 页面切换 | Camera 飞行（不切换页面） |
+
+---
+
 ## Next Steps
 
 1. Evaluator agent 独立验收（Playwright MCP）
